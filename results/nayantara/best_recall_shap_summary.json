@@ -1,0 +1,49 @@
+{
+  "model": "svm",
+  "feature_configuration": "rfe",
+  "imbalance_strategy": "class_weight",
+  "positive_class": "Revenue=True",
+  "positive_class_note": "SHAP values are selected for class 1, which represents the purchase class True.",
+  "top_features": [
+    {
+      "feature": "numerical__PageValues",
+      "mean_abs_shap": 0.14901311169633596
+    },
+    {
+      "feature": "numerical__ProductRelated",
+      "mean_abs_shap": 0.019561464554686027
+    },
+    {
+      "feature": "categorical__Month_Nov",
+      "mean_abs_shap": 0.01793663054977819
+    },
+    {
+      "feature": "numerical__ExitRates",
+      "mean_abs_shap": 0.016826145811892318
+    },
+    {
+      "feature": "categorical__TrafficType_3",
+      "mean_abs_shap": 0.00835931960911606
+    },
+    {
+      "feature": "categorical__Month_May",
+      "mean_abs_shap": 0.005611945459544252
+    },
+    {
+      "feature": "categorical__OperatingSystems_3",
+      "mean_abs_shap": 0.004243825848100288
+    },
+    {
+      "feature": "categorical__Month_Dec",
+      "mean_abs_shap": 0.00388340947538275
+    },
+    {
+      "feature": "categorical__Month_Oct",
+      "mean_abs_shap": 0.0036946229113880556
+    },
+    {
+      "feature": "categorical__Browser_3",
+      "mean_abs_shap": 0.0035319851373428793
+    }
+  ]
+}

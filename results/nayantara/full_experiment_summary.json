@@ -1,0 +1,90 @@
+{
+  "expected_combinations": 48,
+  "successful_runs": 48,
+  "failed_runs": 0,
+  "missing_metric_columns": [],
+  "best_purchase_recall": [
+    {
+      "model": "svm",
+      "feature_configuration": "rfe",
+      "imbalance_strategy": "class_weight",
+      "recall": 0.806282722513089,
+      "f1": 0.6292134831460674,
+      "roc_auc": 0.8963267879932871
+    },
+    {
+      "model": "svm",
+      "feature_configuration": "rfe",
+      "imbalance_strategy": "smote",
+      "recall": 0.8010471204188482,
+      "f1": 0.6232179226069247,
+      "roc_auc": 0.895652239450915
+    },
+    {
+      "model": "svm",
+      "feature_configuration": "tree_importance",
+      "imbalance_strategy": "class_weight",
+      "recall": 0.7513089005235603,
+      "f1": 0.6328555678059536,
+      "roc_auc": 0.897120670076675
+    },
+    {
+      "model": "svm",
+      "feature_configuration": "correlation",
+      "imbalance_strategy": "class_weight",
+      "recall": 0.7513089005235603,
+      "f1": 0.6335540838852097,
+      "roc_auc": 0.8979258574428958
+    },
+    {
+      "model": "svm",
+      "feature_configuration": "all",
+      "imbalance_strategy": "class_weight",
+      "recall": 0.7513089005235603,
+      "f1": 0.6335540838852097,
+      "roc_auc": 0.8979258574428958
+    }
+  ],
+  "best_f1": [
+    {
+      "model": "random_forest",
+      "feature_configuration": "tree_importance",
+      "imbalance_strategy": "smote",
+      "f1": 0.6641221374045801,
+      "recall": 0.6832460732984293,
+      "roc_auc": 0.921667579463577
+    },
+    {
+      "model": "random_forest",
+      "feature_configuration": "correlation",
+      "imbalance_strategy": "smote",
+      "f1": 0.6562905317769131,
+      "recall": 0.662303664921466,
+      "roc_auc": 0.9192871893559506
+    },
+    {
+      "model": "random_forest",
+      "feature_configuration": "all",
+      "imbalance_strategy": "smote",
+      "f1": 0.6562905317769131,
+      "recall": 0.662303664921466,
+      "roc_auc": 0.9192871893559506
+    },
+    {
+      "model": "random_forest",
+      "feature_configuration": "rfe",
+      "imbalance_strategy": "smote",
+      "f1": 0.6405529953917051,
+      "recall": 0.7277486910994765,
+      "roc_auc": 0.9048528554632151
+    },
+    {
+      "model": "svm",
+      "feature_configuration": "tree_importance",
+      "imbalance_strategy": "smote",
+      "f1": 0.634090909090909,
+      "recall": 0.7303664921465969,
+      "roc_auc": 0.8928409924530956
+    }
+  ]
+}

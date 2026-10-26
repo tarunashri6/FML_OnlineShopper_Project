@@ -1,0 +1,49 @@
+{
+  "model": "random_forest",
+  "feature_configuration": "tree_importance",
+  "imbalance_strategy": "smote",
+  "positive_class": "Revenue=True",
+  "positive_class_note": "SHAP values are selected for class 1, which represents the purchase class True.",
+  "top_features": [
+    {
+      "feature": "numerical__PageValues",
+      "mean_abs_shap": 0.1622635944860486
+    },
+    {
+      "feature": "numerical__Administrative_Duration",
+      "mean_abs_shap": 0.038740826746098606
+    },
+    {
+      "feature": "numerical__Administrative",
+      "mean_abs_shap": 0.02236897332626252
+    },
+    {
+      "feature": "categorical__Month_Nov",
+      "mean_abs_shap": 0.02161380556448173
+    },
+    {
+      "feature": "numerical__ExitRates",
+      "mean_abs_shap": 0.017662294762463532
+    },
+    {
+      "feature": "categorical__Month_May",
+      "mean_abs_shap": 0.013095801612723525
+    },
+    {
+      "feature": "numerical__ProductRelated",
+      "mean_abs_shap": 0.012718687756648795
+    },
+    {
+      "feature": "numerical__BounceRates",
+      "mean_abs_shap": 0.012354167763686605
+    },
+    {
+      "feature": "numerical__ProductRelated_Duration",
+      "mean_abs_shap": 0.011959493927989166
+    },
+    {
+      "feature": "categorical__VisitorType_New_Visitor",
+      "mean_abs_shap": 0.010941881211441
+    }
+  ]
+}

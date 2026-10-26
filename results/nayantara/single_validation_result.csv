@@ -1,0 +1,2 @@
+model,feature_configuration,imbalance_strategy,positive_class,train_rows,test_rows,selected_feature_count,accuracy,precision,recall,f1,roc_auc,tn,fp,fn,tp
+logistic_regression,all,none,Revenue=True,9864,2466,75,0.8811841038118411,0.7405405405405405,0.3586387434554974,0.48324514991181655,0.8831222176442806,2036,48,245,137

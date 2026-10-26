@@ -1,0 +1,5 @@
+configuration,feature_count
+all,75
+correlation,75
+rfe,40
+tree_importance,40
