@@ -1,0 +1,94 @@
+{
+  "study": "PageValues Target Leakage & Pure Browsing Behavior Robustness",
+  "observations": [
+    "PageValues is derived from Google Analytics historical transaction attribution.",
+    "When PageValues is present, models achieve ROC-AUC up to 0.922 and F1 up to 0.664.",
+    "Without PageValues, unweighted baseline models suffer extreme recall collapse (down to 0.3% - 11%).",
+    "With class weighting / SMOTE, models recover solid recall (up to 74.9% with Logistic Regression and 68.8% with SVM), reaching ROC-AUC 0.75.",
+    "Without PageValues, SHAP rankings reveal ExitRates, ProductRelated_Duration, Administrative_Duration, and Month_Nov as the genuine behavioral drivers."
+  ],
+  "top_features_with_pv": [
+    {
+      "feature": "numerical__PageValues",
+      "mean_abs_shap": 0.17239573445930226
+    },
+    {
+      "feature": "categorical__Month_Nov",
+      "mean_abs_shap": 0.0269768006538588
+    },
+    {
+      "feature": "numerical__ExitRates",
+      "mean_abs_shap": 0.01996470134192934
+    },
+    {
+      "feature": "numerical__Administrative_Duration",
+      "mean_abs_shap": 0.01760022898734685
+    },
+    {
+      "feature": "numerical__Administrative",
+      "mean_abs_shap": 0.01453556520312021
+    },
+    {
+      "feature": "categorical__Month_May",
+      "mean_abs_shap": 0.012587333968956364
+    },
+    {
+      "feature": "categorical__TrafficType_2",
+      "mean_abs_shap": 0.01228200830530066
+    },
+    {
+      "feature": "numerical__ProductRelated_Duration",
+      "mean_abs_shap": 0.012242809525989527
+    },
+    {
+      "feature": "categorical__VisitorType_New_Visitor",
+      "mean_abs_shap": 0.011313417821509712
+    },
+    {
+      "feature": "numerical__BounceRates",
+      "mean_abs_shap": 0.01121297738665729
+    }
+  ],
+  "top_features_without_pv": [
+    {
+      "feature": "numerical__ExitRates",
+      "mean_abs_shap": 0.047673363305576436
+    },
+    {
+      "feature": "numerical__ProductRelated_Duration",
+      "mean_abs_shap": 0.041112832996832605
+    },
+    {
+      "feature": "numerical__Administrative_Duration",
+      "mean_abs_shap": 0.03832175538845445
+    },
+    {
+      "feature": "categorical__Month_Nov",
+      "mean_abs_shap": 0.027046981125867703
+    },
+    {
+      "feature": "numerical__ProductRelated",
+      "mean_abs_shap": 0.01983604967191224
+    },
+    {
+      "feature": "numerical__Administrative",
+      "mean_abs_shap": 0.01765386804194508
+    },
+    {
+      "feature": "categorical__TrafficType_2",
+      "mean_abs_shap": 0.015183593147361339
+    },
+    {
+      "feature": "numerical__BounceRates",
+      "mean_abs_shap": 0.01469780963710585
+    },
+    {
+      "feature": "categorical__OperatingSystems_2",
+      "mean_abs_shap": 0.013033206588362828
+    },
+    {
+      "feature": "categorical__VisitorType_Returning_Visitor",
+      "mean_abs_shap": 0.0110443165760725
+    }
+  ]
+}
