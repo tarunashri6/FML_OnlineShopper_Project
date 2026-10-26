@@ -15,15 +15,17 @@ Four configurations are generated:
 | Configuration | Method | Selected features |
 |---|---|---:|
 | `all` | Use all processed features | 75 |
-| `correlation` | Remove numerical features whose absolute pairwise correlation exceeds 0.95; retain one-hot categorical features | 75 |
+| `correlation` | Remove numerical features whose absolute pairwise correlation exceeds 0.85; retain one-hot categorical features | 73 |
 | `rfe` | Recursive Feature Elimination using Logistic Regression | 40 |
 | `tree_importance` | Rank features using an Extra Trees classifier and retain the top 40 | 40 |
 
 ### Correlation filtering
 
-Absolute pairwise correlations are calculated using the processed training matrix. The current training data has no numerical feature pair exceeding the 0.95 threshold, so no features are removed.
+Absolute pairwise correlations are calculated using the processed training matrix. With the threshold set at 0.85, two collinear numerical features are removed:
+1. `numerical__ProductRelated_Duration` (correlated with `numerical__ProductRelated` at $r \approx 0.8537$)
+2. `numerical__ExitRates` (correlated with `numerical__BounceRates` at $r \approx 0.9133$)
 
-This result does not imply that every feature is independent. It only means that the implemented numerical-feature filtering rule found no pair above its threshold. One-hot categorical columns are retained by the current method.
+This produces a genuinely reduced 73-feature set while retaining all one-hot categorical indicators.
 
 ### Recursive Feature Elimination
 
@@ -54,17 +56,21 @@ Three configurations are provided:
 
 Class weighting must be passed to a compatible estimator; it is not a resampling operation.
 
-### SMOTE limitation
+### SMOTE limitation & SMOTENC resolution
 
-The shared processed matrix includes one-hot encoded categorical features. Ordinary SMOTE can produce fractional values in these columns, so synthetic rows may not represent valid one-hot categorical records. This limitation must be considered when interpreting the results. A categorical-aware alternative should be discussed with the team before the final comparison.
+Ordinary SMOTE applied to a one-hot encoded matrix can produce fractional values in categorical dummy columns (e.g. `Weekend_True = 0.38`), violating one-hot encoding semantics.
+
+To resolve this:
+1. **`SMOTENC` on Raw Data**: `src/imbalance.py` implements `resample_raw_with_smotenc`, which applies `SMOTENC` directly to the raw feature table prior to one-hot encoding. Continuous numerical features are interpolated, while nominal features are selected from majority nearest neighbours, guaranteeing valid discrete category values.
+2. **Categorical Dummy Snapping**: For processed matrices, `snap_categorical_dummies` threshold-snaps one-hot indicators to discrete `{0.0, 1.0}`, removing fractional artifacts.
+3. **In-Fold Cross-Validation Pipeline**: `src/cross_validation.py` packages `SMOTENC`, standardisation, feature selection, and the classifier into an `imblearn.pipeline.Pipeline`, guaranteeing that oversampling and preprocessing are executed strictly inside training folds with zero validation leakage.
 
 ## 4. Data leakage safeguards
 
 - Feature-selection methods are fitted using the official training matrix only.
-- SMOTE is applied to training data only.
-- The held-out test set is not resampled.
-- The official test set remains at 2,466 observations and 75 features.
-- Feature selection and imbalance handling should be applied consistently within the team's experiment workflow.
+- In cross-validation (`src/cross_validation.py`), `SMOTENC` and standardisation are fitted strictly inside each training fold using `imblearn.pipeline.Pipeline`.
+- Neither validation folds nor the held-out test set are ever resampled.
+- The official held-out test set remains at 2,466 observations and 75 features.
 
 ## 5. Generated outputs
 

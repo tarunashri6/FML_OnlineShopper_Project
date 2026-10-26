@@ -4,9 +4,7 @@ numerical__Administrative_Duration
 numerical__Informational
 numerical__Informational_Duration
 numerical__ProductRelated
-numerical__ProductRelated_Duration
 numerical__BounceRates
-numerical__ExitRates
 numerical__PageValues
 numerical__SpecialDay
 categorical__Month_Aug
