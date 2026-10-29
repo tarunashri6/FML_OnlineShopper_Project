@@ -342,6 +342,24 @@ div[class*="st-key-custom_nav_container"] .nav-active [data-testid="stButton"] >
     box-shadow:0 4px 16px rgba(0,74,198,0.35) !important;
 }
 
+/* ── Live Prediction quick presets ── */
+div[class*="st-key-preset_high"] [data-testid="stButton"] > button,
+div[class*="st-key-preset_window"] [data-testid="stButton"] > button,
+div[class*="st-key-preset_return"] [data-testid="stButton"] > button {
+    width:100% !important; min-height:78px !important; height:auto !important;
+    padding:12px 8px !important; white-space:normal !important;
+    line-height:1.25 !important; font-size:0.88rem !important; font-weight:700 !important;
+    color:var(--primary) !important; background:var(--surface-low) !important;
+    border:1px solid var(--outline-var) !important; border-radius:var(--radius-md) !important;
+    box-shadow:0 1px 4px rgba(11,28,48,0.08) !important;
+}
+div[class*="st-key-preset_high"] [data-testid="stButton"] > button:hover,
+div[class*="st-key-preset_window"] [data-testid="stButton"] > button:hover,
+div[class*="st-key-preset_return"] [data-testid="stButton"] > button:hover {
+    color:var(--primary) !important; background:var(--surface-container) !important;
+    border-color:var(--primary) !important;
+}
+
 /* ── Result banner ── */
 .result-banner { border-radius:var(--radius-lg); padding:20px 22px;
                  display:flex; flex-direction:column; gap:14px;
@@ -1510,505 +1528,214 @@ def render_live_prediction() -> None:
 #  PAGE: MODEL PERFORMANCE & BENCHMARKS
 # ═════════════════════════════════════════════════════════════════════════════
 def render_model_performance() -> None:
-    render_page_header(
-        title="Model Performance & Benchmark Evaluation",
-        badge="📈 Research Experimentation & Benchmarks · K-Fold CV Metrics",
-        desc="Empirical Comparison of 4 Supervised Classifiers on 10-Fold Stratified Cross-Validation & Held-out Test Set"
-    )
-
     df = load_experiment_results()
     cv_df = load_cv_metrics()
+    dataset_stats = load_dataset_stats()
+    render_page_header(
+        title="Model Performance",
+        badge="📈 Test set + cross-validation",
+        desc=f"{len(df)} model runs · {df['model'].nunique()} classifiers · {dataset_stats['total']:,} sessions"
+    )
+    best_f1_row = df.loc[df["f1"].idxmax()]
+    best_rec_row = df.loc[df["recall"].idxmax()]
 
-    # Dynamic champion identification
-    best_f1_row = df.sort_values("f1", ascending=False).iloc[0]
-    best_rec_row = df.sort_values("recall", ascending=False).iloc[0]
+    def model_label(row: pd.Series) -> str:
+        model = str(row["model"]).replace("_", " ").title()
+        features = str(row["feature_configuration"]).replace("_", " ").title()
+        imbalance = str(row["imbalance_strategy"]).replace("_", " ").title()
+        return f"{model} · {features} · {imbalance}"
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Top Champion Cards (2 Columns)
-    # ─────────────────────────────────────────────────────────────────────────
-    top_c1, top_c2 = st.columns(2)
-
-    with top_c1:
-        st.markdown(f"""
-<div class="lb-card" style="border-left:4px solid var(--primary);">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-        <span class="viva-pill" style="background:var(--primary);color:#fff !important;padding:2px 8px;font-size:0.6rem;">SELECTED CHAMPION</span>
-        <span class="lb-rank gold">★ Best Overall F1-Score</span>
-      </div>
-      <div class="lb-config" style="font-size:1.2rem;margin-top:2px;">Random Forest (Tree-Imp + SMOTE)</div>
-      <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:12px;">
-        Optimal balance between capturing intent and suppressing expensive false alarms in production.
-      </div>
-    </div>
-    <div style="width:42px;height:42px;border-radius:10px;background:rgba(0,74,198,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;">🏆</div>
-  </div>
-  <div class="lb-metrics" style="background:var(--surface-low);padding:10px 14px;border-radius:var(--radius-md);">
-    <div class="lb-metric">
-      <span class="lb-metric-label">Optimized F1</span>
-      <span class="lb-metric-value" style="font-size:1.35rem;">{best_f1_row['f1']:.4f}</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">Test Recall</span>
-      <span class="lb-metric-value green">{best_f1_row['recall']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">Precision</span>
-      <span class="lb-metric-value">{best_f1_row['precision']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">Accuracy</span>
-      <span class="lb-metric-value">{best_f1_row['accuracy']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">ROC-AUC</span>
-      <span class="lb-metric-value green">{best_f1_row['roc_auc']:.4f}</span>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    with top_c2:
-        st.markdown(f"""
-<div class="lb-card" style="border-left:4px solid var(--tertiary);">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
-    <div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-        <span class="viva-pill" style="background:var(--tertiary);color:#fff !important;padding:2px 8px;font-size:0.6rem;">HIGH SENSITIVITY</span>
-        <span class="lb-rank green" style="color:var(--tertiary);">★ Highest Purchase Recall</span>
-      </div>
-      <div class="lb-config" style="font-size:1.2rem;margin-top:2px;">SVM (RFE + Class Weight)</div>
-      <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:12px;">
-        Maximizes retrieval of prospective buyers to minimize lost customer conversion opportunities.
-      </div>
-    </div>
-    <div style="width:42px;height:42px;border-radius:10px;background:rgba(0,98,66,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;">🎯</div>
-  </div>
-  <div class="lb-metrics" style="background:var(--surface-low);padding:10px 14px;border-radius:var(--radius-md);">
-    <div class="lb-metric">
-      <span class="lb-metric-label">Peak Recall</span>
-      <span class="lb-metric-value green" style="font-size:1.35rem;">{best_rec_row['recall']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">F1-Score</span>
-      <span class="lb-metric-value">{best_rec_row['f1']:.4f}</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">Precision</span>
-      <span class="lb-metric-value amber">{best_rec_row['precision']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">Accuracy</span>
-      <span class="lb-metric-value">{best_rec_row['accuracy']*100:.1f}%</span>
-    </div>
-    <div class="lb-metric">
-      <span class="lb-metric-label">ROC-AUC</span>
-      <span class="lb-metric-value green">{best_rec_row['roc_auc']:.4f}</span>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 1: Baseline Architecture Comparison & ROC-AUC Ranking
-    # ─────────────────────────────────────────────────────────────────────────
-    col_comp, col_auc = st.columns([7, 5])
-
-    baseline_models = [
-        ("Random Forest", "random_forest", "Top Balance Ensemble (Baseline)", True),
-        ("Support Vector Machine", "svm", "RBF Kernel (C=1.0, Gamma=Scale)", False),
-        ("Logistic Regression", "logistic_regression", "Linear Baseline (L2 Regularized)", False),
-        ("Decision Tree", "decision_tree", "CART Tree (Max Depth = 8 Pruned)", False),
+    # Five-metric radar comparison for the two data-selected champions.
+    import math
+    radar_metrics = [
+        ("F1", "f1"), ("Recall", "recall"), ("Precision", "precision"),
+        ("Accuracy", "accuracy"), ("ROC-AUC", "roc_auc"),
     ]
+    radar_cx, radar_cy, radar_radius = 350, 265, 170
+    radar_angles = [-math.pi / 2 + i * 2 * math.pi / len(radar_metrics) for i in range(len(radar_metrics))]
 
+    def radar_points(row: pd.Series, scale: float = 1.0) -> str:
+        return " ".join(
+            f"{radar_cx + radar_radius * scale * float(row[key]) * math.cos(angle):.1f},"
+            f"{radar_cy + radar_radius * scale * float(row[key]) * math.sin(angle):.1f}"
+            for (_, key), angle in zip(radar_metrics, radar_angles)
+        )
+
+    radar_grid = "".join(
+        f'<polygon points="{radar_points(pd.Series({key: 1.0 for _, key in radar_metrics}), level)}" '
+        f'fill="none" stroke="#dce3f1" stroke-width="2" />'
+        for level in (.25, .5, .75, 1.0)
+    )
+    radar_axes = "".join(
+        f'<line x1="{radar_cx}" y1="{radar_cy}" '
+        f'x2="{radar_cx + radar_radius * math.cos(angle):.1f}" '
+        f'y2="{radar_cy + radar_radius * math.sin(angle):.1f}" '
+        f'stroke="#dce3f1" stroke-width="2" />'
+        for angle in radar_angles
+    )
+    radar_labels = "".join(
+        f'<text x="{radar_cx + (radar_radius + 34) * math.cos(angle):.1f}" '
+        f'y="{radar_cy + (radar_radius + 34) * math.sin(angle):.1f}" '
+        f'text-anchor="middle" dominant-baseline="middle" '
+        f'font-family="Inter, sans-serif" font-size="22" font-weight="600" fill="#586579">{label}</text>'
+        for (label, _), angle in zip(radar_metrics, radar_angles)
+    )
+    radar_svg = f"""
+<svg viewBox="0 0 700 540" role="img" aria-label="Best F1 and best recall across five evaluation metrics" style="width:100%;height:auto;max-height:570px">
+ <g>{radar_grid}{radar_axes}</g>
+ <polygon points="{radar_points(best_f1_row)}" fill="#1d4ed8" fill-opacity=".18" stroke="#1d4ed8" stroke-width="4" stroke-linejoin="round" />
+ <polygon points="{radar_points(best_rec_row)}" fill="#1f6b47" fill-opacity=".16" stroke="#1f6b47" stroke-width="4" stroke-linejoin="round" />
+ {''.join(f'<circle cx="{radar_cx + radar_radius * float(row[key]) * math.cos(angle):.1f}" cy="{radar_cy + radar_radius * float(row[key]) * math.sin(angle):.1f}" r="7" fill="{color}" />' for row, color in ((best_f1_row, '#1d4ed8'), (best_rec_row, '#1f6b47')) for (_, key), angle in zip(radar_metrics, radar_angles))}
+ {radar_labels}
+</svg>"""
+
+    def champion_card(title: str, row: pd.Series, metric: str, color: str) -> str:
+        value = row[metric] * 100
+        label = "Recall" if metric == "recall" else "F1 score"
+        return f"""
+<div class="lb-card" style="border-left:6px solid {color};padding:24px 26px;">
+  <div style="font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:{color};">{title}</div>
+  <div style="font:700 2rem/1.2 var(--font-head);margin:8px 0 4px;color:var(--on-surface);">{value:.1f}%</div>
+  <div style="font-size:1rem;font-weight:600;margin-bottom:14px;">{model_label(row)}</div>
+  <div style="display:flex;gap:24px;flex-wrap:wrap;background:var(--surface-low);border-radius:var(--radius-md);padding:12px 16px;">
+    <div><span class="lb-metric-label" style="font-size:.78rem">{label}</span><br><strong style="font-size:1.3rem;color:{color};">{value:.1f}%</strong></div>
+    <div><span class="lb-metric-label" style="font-size:.78rem">Precision</span><br><strong style="font-size:1.3rem;">{row['precision']*100:.1f}%</strong></div>
+    <div><span class="lb-metric-label" style="font-size:.78rem">ROC-AUC</span><br><strong style="font-size:1.3rem;">{row['roc_auc']:.3f}</strong></div>
+    <div><span class="lb-metric-label" style="font-size:.78rem">Accuracy</span><br><strong style="font-size:1.3rem;">{row['accuracy']*100:.1f}%</strong></div>
+  </div>
+</div>"""
+
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown(champion_card("Best F1", best_f1_row, "f1", "var(--primary)"), unsafe_allow_html=True)
+    with c2:
+        st.markdown(champion_card("Best purchase recall", best_rec_row, "recall", "var(--tertiary)"), unsafe_allow_html=True)
+
+    # Compact model overview and ROC-AUC comparison.
+    baseline_models = [
+        ("Random Forest", "random_forest"), ("Support Vector Machine", "svm"),
+        ("Logistic Regression", "logistic_regression"), ("Decision Tree", "decision_tree"),
+    ]
+    col_comp, col_auc = st.columns([1, 1])
     with col_comp:
-        st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Architectural Baseline Comparison</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Held-out test set performance using all 17 features without sampling adjustments</div>
-    </div>
-    <div style="display:flex;gap:10px;font-size:0.65rem;font-weight:600;">
-      <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;background:var(--secondary);border-radius:2px;"></span>ACC</span>
-      <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;background:#3b82f6;border-radius:2px;"></span>PREC</span>
-      <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;background:var(--tertiary);border-radius:2px;"></span>REC</span>
-      <span style="display:flex;align-items:center;gap:3px;"><span style="width:8px;height:8px;background:var(--primary);border-radius:2px;"></span>F1</span>
-    </div>
-  </div>
-""", unsafe_allow_html=True)
-
-        for name, key, subtitle, is_champ in baseline_models:
-            m_row = df[(df["model"] == key) & (df["feature_configuration"] == "all") & (df["imbalance_strategy"] == "none")].iloc[0]
-            champ_cls = "champion" if is_champ else ""
-            badge_html = '<span class="viva-pill" style="font-size:0.6rem;padding:1px 6px;">Top Baseline</span>' if is_champ else ""
+        st.markdown('<div class="result-card"><div class="result-card-title" style="font-size:1.2rem;">Baseline metrics</div><div style="color:var(--secondary);font-size:.9rem;margin-bottom:14px;">Held-out test · all features</div>', unsafe_allow_html=True)
+        for name, key in baseline_models:
+            row = df[(df["model"] == key) & (df["feature_configuration"] == "all") & (df["imbalance_strategy"] == "none")].iloc[0]
             st.markdown(f"""
-<div class="compare-model-row {champ_cls}">
-  <div class="compare-model-head">
-    <div class="compare-model-name">
-      {name} {badge_html}
-    </div>
-    <div class="compare-model-sub">{subtitle}</div>
-  </div>
-  <div class="metric-grid-4">
-    <div class="metric-bar-item">
-      <div class="metric-bar-header"><span>ACC</span><span>{m_row['accuracy']*100:.1f}%</span></div>
-      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:{m_row['accuracy']*100:.1f}%;background:var(--secondary);"></div></div>
-    </div>
-    <div class="metric-bar-item">
-      <div class="metric-bar-header"><span>PREC</span><span>{m_row['precision']*100:.1f}%</span></div>
-      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:{m_row['precision']*100:.1f}%;background:#3b82f6;"></div></div>
-    </div>
-    <div class="metric-bar-item">
-      <div class="metric-bar-header"><span>REC</span><span>{m_row['recall']*100:.1f}%</span></div>
-      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:{m_row['recall']*100:.1f}%;background:var(--tertiary);"></div></div>
-    </div>
-    <div class="metric-bar-item">
-      <div class="metric-bar-header"><span style="color:var(--primary);font-weight:700;">F1</span><span style="color:var(--primary);font-weight:700;">{m_row['f1']*100:.1f}%</span></div>
-      <div class="metric-bar-track"><div class="metric-bar-fill" style="width:{m_row['f1']*100:.1f}%;background:var(--primary);"></div></div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-        st.markdown("</div>", unsafe_allow_html=True)
+<div class="compare-model-row" style="padding:14px 16px;">
+ <div class="compare-model-head"><div class="compare-model-name" style="font-size:1rem;">{name}</div></div>
+ <div class="metric-grid-4">
+  <div class="metric-bar-item"><div class="metric-bar-header"><span>Accuracy</span><span>{row['accuracy']*100:.1f}%</span></div><div class="metric-bar-track" style="height:10px"><div class="metric-bar-fill" style="width:{row['accuracy']*100:.1f}%;background:var(--secondary)"></div></div></div>
+  <div class="metric-bar-item"><div class="metric-bar-header"><span>Precision</span><span>{row['precision']*100:.1f}%</span></div><div class="metric-bar-track" style="height:10px"><div class="metric-bar-fill" style="width:{row['precision']*100:.1f}%;background:#3b82f6"></div></div></div>
+  <div class="metric-bar-item"><div class="metric-bar-header"><span>Recall</span><span>{row['recall']*100:.1f}%</span></div><div class="metric-bar-track" style="height:10px"><div class="metric-bar-fill" style="width:{row['recall']*100:.1f}%;background:var(--tertiary)"></div></div></div>
+  <div class="metric-bar-item"><div class="metric-bar-header"><span>F1</span><span>{row['f1']*100:.1f}%</span></div><div class="metric-bar-track" style="height:10px"><div class="metric-bar-fill" style="width:{row['f1']*100:.1f}%;background:var(--primary)"></div></div></div>
+ </div>
+</div>""", unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_auc:
-        st.markdown("""
-<div class="result-card">
-  <div class="result-card-title" style="margin-bottom:2px;">ROC-AUC Discriminative Power</div>
-  <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:14px;">Area under Receiver Operating Characteristic curve on held-out test split</div>
-""", unsafe_allow_html=True)
-
-        auc_list = []
-        for name, key, subtitle, is_champ in baseline_models:
-            m_row = df[(df["model"] == key) & (df["feature_configuration"] == "all") & (df["imbalance_strategy"] == "none")].iloc[0]
-            auc_list.append((name, m_row["roc_auc"], is_champ))
-        auc_list.sort(key=lambda x: x[1], reverse=True)
-
-        for name, auc_val, is_champ in auc_list:
-            color = "var(--primary)" if is_champ else "var(--tertiary)" if auc_val >= 0.88 else "var(--secondary)"
-            bold_style = "font-weight:700;color:var(--primary);" if is_champ else "color:var(--on-surface);"
-            st.markdown(f"""
-<div style="margin-bottom:12px;">
-  <div style="display:flex;justify-content:space-between;font-size:0.8rem;margin-bottom:4px;">
-    <span style="{bold_style}">{name}</span>
-    <span style="font-family:var(--font-head);font-weight:700;{bold_style}">{auc_val:.4f}</span>
-  </div>
-  <div class="bar-track" style="height:8px;">
-    <div class="bar-fill" style="width:{auc_val*100:.1f}%;background:{color};"></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
+        st.markdown('<div class="result-card"><div class="result-card-title" style="font-size:1.2rem;">ROC-AUC by model</div><div style="color:var(--secondary);font-size:.9rem;margin-bottom:18px;">Baseline · held-out test</div>', unsafe_allow_html=True)
+        auc_rows = []
+        for name, key in baseline_models:
+            row = df[(df["model"] == key) & (df["feature_configuration"] == "all") & (df["imbalance_strategy"] == "none")].iloc[0]
+            auc_rows.append((name, row["roc_auc"]))
+        for name, score in sorted(auc_rows, key=lambda item: item[1], reverse=True):
+            color = "var(--primary)" if name == "Random Forest" else "var(--tertiary)" if score >= .88 else "#c2571a"
+            st.markdown(f'<div class="bar-row" style="margin:18px 0"><div class="bar-row-label" style="font-size:.9rem;min-width:170px">{name}</div><div class="bar-track" style="height:16px"><div class="bar-fill" style="width:{score*100:.1f}%;background:{color}"></div></div><div class="bar-row-val" style="font-size:1rem;min-width:55px">{score:.3f}</div></div>', unsafe_allow_html=True)
         roc_fig_path = FIGS / "roc_auc_by_model.png"
         if roc_fig_path.exists():
-            st.image(str(roc_fig_path), caption="ROC-AUC Curves by Model (Generated by experiments)", use_container_width=True)
-        st.markdown("""
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 12px;margin-top:14px;font-size:0.73rem;color:var(--on-surface-var);line-height:1.45;">
-    💡 <strong>Examiner Note:</strong> ROC-AUC measures ranking discrimination across all classification thresholds τ ∈ [0, 1]. Both Random Forest (0.916) and Logistic Regression (0.883) achieve excellent separation, proving strong underlying posterior probability calibration before threshold cutoffs.
-  </div>
-</div>
-""", unsafe_allow_html=True)
+            st.image(str(roc_fig_path), caption="ROC-AUC comparison", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 2: Confusion Matrix & Research Interpretation
-    # ─────────────────────────────────────────────────────────────────────────
-    col_cm, col_interp = st.columns([6, 6])
+    # Confusion matrix: keep the existing four-cell visual, with clearer labels.
+    cm_choice = st.selectbox("Confusion matrix", ["Best F1", "Best recall"], key="mp_cm_selector")
+    use_best_f1_cm = cm_choice == "Best F1"
+    cm_row = best_f1_row if use_best_f1_cm else best_rec_row
+    tn, fp, fn, tp = (int(cm_row[k]) for k in ("tn", "fp", "fn", "tp"))
+    total_test, total_neg, total_pos = tn + fp + fn + tp, tn + fp, fn + tp
+    tnr, fpr = tn / total_neg * 100, fp / total_neg * 100
+    fnr, tpr = fn / total_pos * 100, tp / total_pos * 100
+    st.markdown(f"""
+<div class="cm-card" style="padding:26px;margin-bottom:1.25rem;">
+ <div class="result-card-title" style="font-size:1.25rem;">Confusion matrix · {'Best F1' if use_best_f1_cm else 'Best recall'}</div>
+ <div style="font-size:.9rem;color:var(--secondary);margin-bottom:16px">{model_label(cm_row)} · {total_test:,} test sessions</div>
+ <div style="display:grid;grid-template-columns:130px 1fr 1fr;gap:8px;margin-bottom:8px"><div></div><div class="cm-grid-header" style="font-size:.82rem;padding:10px">Predicted · no purchase</div><div class="cm-grid-header" style="font-size:.82rem;padding:10px">Predicted · purchase</div></div>
+ <div style="display:grid;grid-template-columns:130px 1fr 1fr;gap:8px;margin-bottom:8px"><div class="cm-grid-header" style="display:grid;place-items:center;font-size:.82rem">Actual · no purchase</div><div class="cm-cell tn" style="min-height:130px;padding:18px"><div class="cm-cell-name">True negative</div><div class="cm-count" style="font-size:2.2rem">{tn:,}</div><div class="cm-rate">Specificity <b>{tnr:.1f}%</b></div></div><div class="cm-cell fp" style="min-height:130px;padding:18px"><div class="cm-cell-name">False positive</div><div class="cm-count" style="font-size:2.2rem">{fp:,}</div><div class="cm-rate">False alarm rate <b>{fpr:.1f}%</b></div></div></div>
+ <div style="display:grid;grid-template-columns:130px 1fr 1fr;gap:8px"><div class="cm-grid-header" style="display:grid;place-items:center;font-size:.82rem">Actual · purchase</div><div class="cm-cell fn" style="min-height:130px;padding:18px"><div class="cm-cell-name">False negative</div><div class="cm-count" style="font-size:2.2rem">{fn:,}</div><div class="cm-rate">Miss rate <b>{fnr:.1f}%</b></div></div><div class="cm-cell tp" style="min-height:130px;padding:18px"><div class="cm-cell-name">True positive</div><div class="cm-count" style="font-size:2.2rem">{tp:,}</div><div class="cm-rate">Recall <b>{tpr:.1f}%</b></div></div></div>
+ <div class="cm-summary-bar" style="font-size:.9rem;padding:14px"><span>Accuracy <b>{cm_row['accuracy']*100:.1f}%</b></span><span>Precision <b>{cm_row['precision']*100:.1f}%</b></span><span>F1 <b>{cm_row['f1']:.3f}</b></span></div>
+</div>""", unsafe_allow_html=True)
+    cm_fig_path = FIGS / "best_f1_confusion_matrix.png"
+    if use_best_f1_cm and cm_fig_path.exists():
+        with st.expander("View confusion matrix heatmap"):
+            st.image(str(cm_fig_path), use_container_width=True)
 
-    with col_cm:
-        # Champion selector
-        cm_choice = st.radio(
-            "Select Evaluation Configuration:",
-            ["🥇 Best F1 Champion (Random Forest)", "🎯 Best Recall Champion (SVM)"],
-            horizontal=True,
-            key="mp_cm_selector"
-        )
-        use_best_f1_cm = "Best F1" in cm_choice
-        cm_row = best_f1_row if use_best_f1_cm else best_rec_row
-        cm_label = "RF + Tree-Importance + SMOTE" if use_best_f1_cm else "SVM + RFE + Class Weight"
-        tn = int(cm_row["tn"])
-        fp = int(cm_row["fp"])
-        fn = int(cm_row["fn"])
-        tp = int(cm_row["tp"])
-        total_test = tn + fp + fn + tp
-        total_neg = tn + fp
-        total_pos = fn + tp
-        tnr = (tn / total_neg) * 100
-        fpr = (fp / total_neg) * 100
-        fnr = (fn / total_pos) * 100
-        tpr = (tp / total_pos) * 100
-
-        st.markdown(f"""
-<div class="cm-card">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
-    <div>
-      <span class="viva-pill" style="font-size:0.6rem;padding:2px 6px;">Evaluation Sample</span>
-      <div class="result-card-title" style="margin-top:4px;margin-bottom:2px;">Confusion Matrix — Champion Model</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">{cm_label} (Test split n = {total_test:,}, τ = 0.50)</div>
-    </div>
-    <span class="meta-pill" style="font-size:0.7rem;font-weight:600;">Accuracy {cm_row['accuracy']*100:.1f}%</span>
-  </div>
-
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;margin-bottom:6px;">
-    <div></div>
-    <div class="cm-grid-header">Pred: No Purchase</div>
-    <div class="cm-grid-header">Pred: Purchase</div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;margin-bottom:6px;">
-    <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;">
-      Actual: No Purchase
-    </div>
-    <div class="cm-cell tn">
-      <div class="cm-cell-top">
-        <span class="cm-cell-name">True Neg (TN)</span>
-        <span class="cm-tag">TN</span>
-      </div>
-      <div class="cm-count">{tn:,}</div>
-      <div class="cm-rate">
-        <span>Specificity (TNR)</span>
-        <span class="cm-rate-val">{tnr:.1f}%</span>
-      </div>
-    </div>
-    <div class="cm-cell fp">
-      <div class="cm-cell-top">
-        <span class="cm-cell-name">False Pos (FP)</span>
-        <span class="cm-tag">FP</span>
-      </div>
-      <div class="cm-count">{fp:,}</div>
-      <div class="cm-rate">
-        <span>False Alarm Rate</span>
-        <span class="cm-rate-val">{fpr:.1f}%</span>
-      </div>
-    </div>
-  </div>
-
-  <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;">
-    <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;">
-      Actual: Purchase
-    </div>
-    <div class="cm-cell fn">
-      <div class="cm-cell-top">
-        <span class="cm-cell-name">False Neg (FN)</span>
-        <span class="cm-tag">FN</span>
-      </div>
-      <div class="cm-count">{fn:,}</div>
-      <div class="cm-rate">
-        <span>Missed Intent (FNR)</span>
-        <span class="cm-rate-val">{fnr:.1f}%</span>
-      </div>
-    </div>
-    <div class="cm-cell tp">
-      <div class="cm-cell-top">
-        <span class="cm-cell-name">True Pos (TP)</span>
-        <span class="cm-tag">TP</span>
-      </div>
-      <div class="cm-count">{tp:,}</div>
-      <div class="cm-rate">
-        <span>Recall (TPR)</span>
-        <span class="cm-rate-val">{tpr:.1f}%</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="cm-summary-bar">
-    <div class="cm-summary-item">Specificity: <span class="cm-summary-val" style="color:var(--tertiary);">{tnr:.1f}%</span></div>
-    <span style="color:var(--outline);">|</span>
-    <div class="cm-summary-item">Recall: <span class="cm-summary-val" style="color:var(--primary);">{tpr:.1f}%</span></div>
-    <span style="color:var(--outline);">|</span>
-    <div class="cm-summary-item">Precision: <span class="cm-summary-val" style="color:#2563eb;">{cm_row['precision']*100:.1f}%</span></div>
-    <span style="color:var(--outline);">|</span>
-    <div class="cm-summary-item">F1 Score: <span class="cm-summary-val" style="color:var(--primary);">{cm_row['f1']:.4f}</span></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-        if use_best_f1_cm:
-            cm_fig_path = FIGS / "best_f1_confusion_matrix.png"
-            if cm_fig_path.exists():
-                with st.expander("🖼️ View Verified Matplotlib Confusion Matrix Heatmap"):
-                    st.image(str(cm_fig_path), caption="Best F1 Confusion Matrix (Generated by src/explain_models.py)", use_container_width=True)
-
-    with col_interp:
-        st.markdown("""
-<div class="result-card">
-  <div class="result-card-title">Empirical Research Findings & Architecture Trade-offs</div>
-  
-  <div class="research-card">
-    <div class="research-card-title">1. Precision-Recall Trade-off & Business Objective</div>
-    <div class="research-card-body">
-      A critical research takeaway is that no single model dominates across every metric. 
-      <strong>Random Forest (Tree-Imp + SMOTE)</strong> achieves the optimal harmonic balance (F1 = 0.6641) with 64.6% Precision and 68.3% Recall. 
-      Meanwhile, <strong>SVM (RFE + Class Weight)</strong> reaches the highest Recall (80.63%), catching 4 out of 5 purchasers, but sacrifices Precision down to 51.60% (generating 289 false alarms vs 143 for RF).
-    </div>
-  </div>
-
-  <div class="research-card">
-    <div class="research-card-title">2. Feature Selection Impact (Tree Importance vs All)</div>
-    <div class="research-card-body">
-      Filtering to tree-importance features improved Random Forest F1 from 0.5897 to 0.6641. 
-      Behavioral features (<code>PageValues</code>, <code>ExitRates</code>, <code>ProductRelated_Duration</code>) carry dominant discriminative signal. Removing noisy categorical columns (Browser, OperatingSystems, Region) reduces variance without sacrificing predictive capacity.
-    </div>
-  </div>
-
-  <div class="research-card">
-    <div class="research-card-title">3. Class Imbalance Remedy (SMOTE vs Class Weight)</div>
-    <div class="research-card-body">
-      Due to the 84.5% non-purchase baseline, unweighted models heavily favor Class 0 (baseline LR recall was only 35.86%). 
-      <strong>SMOTE</strong> synthesizes minority-class feature neighborhoods, improving Random Forest recall by +20.2% points. 
-      <strong>Cost-sensitive weighting</strong> forces linear/margin boundaries away from the minority class, maximizing sensitivity for SVM.
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 3: 10-Fold Stratified Cross-Validation Benchmarks
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">10-Fold Stratified Cross-Validation Benchmark Stability</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Validation across 10 stratified folds on the training partition (n = 9,864 sessions) with 95% confidence intervals</div>
-    </div>
-    <span class="viva-pill">Statistical Generalisation</span>
-  </div>
-""", unsafe_allow_html=True)
-
-    # Prepare nicely formatted CV table
-    cv_display = cv_df.copy()
-    cv_display["F1 Score (CV Mean ± Std)"] = cv_display.apply(lambda r: f"{r['f1_mean']:.4f} ± {r['f1_std']:.3f}", axis=1)
-    cv_display["F1 95% Conf. Interval"] = cv_display.apply(lambda r: f"[{r['f1_ci95_low']:.4f}, {r['f1_ci95_high']:.4f}]", axis=1)
-    cv_display["Test F1 (Holdout)"] = cv_display["test_f1"].apply(lambda v: f"{v:.4f}")
-    cv_display["Recall (CV Mean)"] = cv_display["recall_mean"].apply(lambda v: f"{v*100:.1f}%")
-    cv_display["Test Recall"] = cv_display["test_recall"].apply(lambda v: f"{v*100:.1f}%")
-    cv_display["ROC-AUC (CV Mean)"] = cv_display["roc_auc_mean"].apply(lambda v: f"{v:.4f}")
-    cv_display["Accuracy (CV Mean)"] = cv_display["accuracy_mean"].apply(lambda v: f"{v*100:.1f}%")
-
-    table_cols = [
-        "display_name", "F1 Score (CV Mean ± Std)", "F1 95% Conf. Interval",
-        "Test F1 (Holdout)", "Recall (CV Mean)", "Test Recall", "ROC-AUC (CV Mean)", "Accuracy (CV Mean)"
-    ]
-    renamed_df = cv_display[table_cols].rename(columns={"display_name": "Model Architecture & Strategy"})
-
+    # Cross-validation intervals and the original champion trade-off chart.
+    st.markdown('<div class="result-card"><div class="result-card-title" style="font-size:1.25rem;">Cross-validation · 95% confidence intervals</div><div style="color:var(--secondary);font-size:.9rem;margin-bottom:12px">10-fold validation on the training split</div>', unsafe_allow_html=True)
     cv_ci_fig = FIGS / "repeated_cv_confidence_intervals.png"
     if cv_ci_fig.exists():
-        st.image(str(cv_ci_fig), caption="10-Fold Repeated CV — 95% Confidence Intervals by Model Configuration", use_container_width=True)
+        st.image(str(cv_ci_fig), caption="Cross-validation confidence intervals", use_container_width=True)
+    cv_show = cv_df[["display_name", "f1_mean", "f1_ci95_low", "f1_ci95_high", "test_f1", "recall_mean", "roc_auc_mean"]].copy()
+    cv_show.columns = ["Model / setup", "CV F1", "CI low", "CI high", "Test F1", "CV recall", "CV ROC-AUC"]
+    with st.expander("CV metrics table"):
+        st.dataframe(cv_show, use_container_width=True, hide_index=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.dataframe(renamed_df, use_container_width=True, hide_index=True)
+    st.markdown('<div class="result-card"><div class="result-card-title" style="font-size:1.45rem;">Best F1 vs best recall</div><div style="color:var(--secondary);font-size:1rem;margin-bottom:16px">The two champions across all five metrics</div>', unsafe_allow_html=True)
+    st.markdown(radar_svg, unsafe_allow_html=True)
+    f1_fp = int(best_f1_row["fp"])
+    recall_fp = int(best_rec_row["fp"])
+    recall_champ_pct = float(best_rec_row["recall"]) * 100
+    f1_recommendation = "Balanced choice · fewer false alarms" if f1_fp < recall_fp else "Balanced choice · strongest F1 score"
+    def short_champion_label(row: pd.Series) -> str:
+        model = str(row["model"]).replace("_", " ").title()
+        strategy = str(row["imbalance_strategy"]).replace("_", " ").title()
+        return f"{model} + {strategy}"
+    st.markdown(f"""
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin:10px 0 4px">
+ <div style="background:#eef3ff;border-left:6px solid #1d4ed8;border-radius:18px;padding:22px 24px">
+  <div style="font-size:1.5rem;font-weight:800;color:#1d4ed8">{short_champion_label(best_f1_row)}</div>
+  <div style="font-size:1.1rem;font-weight:600;color:#586579;margin-top:4px">{f1_recommendation} · F1 {float(best_f1_row['f1']):.3f} · {f1_fp:,} false alarms</div>
+ </div>
+ <div style="background:#eef3ff;border-left:6px solid #1f6b47;border-radius:18px;padding:22px 24px">
+  <div style="font-size:1.5rem;font-weight:800;color:#1f6b47">{short_champion_label(best_rec_row)}</div>
+  <div style="font-size:1.1rem;font-weight:600;color:#586579;margin-top:4px">Higher buyer coverage · recall {recall_champ_pct:.1f}% · {recall_fp:,} false alarms</div>
+ </div>
+</div></div>""", unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("""
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 14px;margin-top:10px;font-size:0.73rem;color:var(--on-surface-var);line-height:1.45;">
-    ℹ️ <strong>Academic Methodology Note:</strong> 
-    Cross-validation metrics evaluate internal training fold stability and variance, while test metrics measure performance on the fixed, held-out test split (n = 2,466). 
-    Notice that the Random Forest Champion achieves a CV Mean F1 of <strong>0.6762</strong> (95% CI: [0.6661, 0.6863]) and a held-out test F1 of <strong>0.6641</strong>, confirming high consistency with no severe overfitting.
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 4: 48-Experiment Results Explorer
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">48-Experiment Grid Search Results Explorer</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Full empirical factorial grid: 4 Classifiers × 4 Feature Subsets × 3 Imbalance Techniques</div>
-    </div>
-    <span class="meta-pill">n = 48 Experiments</span>
-  </div>
-""", unsafe_allow_html=True)
-
-    f_col1, f_col2, f_col3 = st.columns(3)
-    with f_col1:
-        model_opts = ["All Models", "Random Forest", "Support Vector Machine", "Logistic Regression", "Decision Tree"]
-        sel_model = st.selectbox("Filter by Model Architecture", model_opts, key="mp_filter_model")
-    with f_col2:
-        feat_opts = ["All Configurations", "tree_importance", "rfe", "correlation", "all"]
-        sel_feat = st.selectbox("Filter by Feature Subset", feat_opts, key="mp_filter_feat")
-    with f_col3:
-        imb_opts = ["All Strategies", "smote", "class_weight", "none"]
-        sel_imb = st.selectbox("Filter by Imbalance Handling", imb_opts, key="mp_filter_imb")
-
-    model_map = {
-        "Random Forest": "random_forest",
-        "Support Vector Machine": "svm",
-        "Logistic Regression": "logistic_regression",
-        "Decision Tree": "decision_tree"
-    }
-
-    filtered_df = df.copy()
-    if sel_model != "All Models":
-        filtered_df = filtered_df[filtered_df["model"] == model_map[sel_model]]
-    if sel_feat != "All Configurations":
-        filtered_df = filtered_df[filtered_df["feature_configuration"] == sel_feat]
-    if sel_imb != "All Strategies":
-        filtered_df = filtered_df[filtered_df["imbalance_strategy"] == sel_imb]
-
-    filtered_df = filtered_df.sort_values("f1", ascending=False)
-
-    exp_view = pd.DataFrame({
-        "Model": filtered_df["model"].apply(lambda m: m.replace("_", " ").title()),
-        "Features": filtered_df["feature_configuration"],
-        "Imbalance": filtered_df["imbalance_strategy"],
-        "Selected Features": filtered_df["selected_feature_count"],
-        "F1 Score": filtered_df["f1"].apply(lambda v: f"{v:.4f}"),
-        "Recall": filtered_df["recall"].apply(lambda v: f"{v*100:.1f}%"),
-        "Precision": filtered_df["precision"].apply(lambda v: f"{v*100:.1f}%"),
-        "ROC-AUC": filtered_df["roc_auc"].apply(lambda v: f"{v:.4f}"),
-        "Accuracy": filtered_df["accuracy"].apply(lambda v: f"{v*100:.1f}%"),
-    })
-
-    st.dataframe(exp_view, use_container_width=True, hide_index=True)
-    st.markdown(f"<div style='font-size:0.7rem;color:var(--secondary);margin-top:4px;'>Showing {len(exp_view)} of 48 experimental runs (sorted by F1-Score descending).</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 5: Collapsible Viva / Metric Definitions Guide
-    # ─────────────────────────────────────────────────────────────────────────
-    with st.expander("📖 Viva Guide: Evaluation Metrics & Plain-Language Definitions (Examiner Deep-Dive)"):
-        st.markdown("""
-### Plain-Language Definitions & Contextual Relevance
-
-* **Accuracy ($$\\frac{TP + TN}{Total}$$)**: 
-  The proportion of all sessions classified correctly. 
-  <br>⚠️ *Critical Examiner Warning:* In an imbalanced dataset where 84.5% of sessions do not purchase, a naive "dummy" classifier predicting *No Purchase* for 100% of sessions achieves **84.5% accuracy** while offering **0% utility** (detecting zero buyers). Accuracy must never be used in isolation.
-
-* **Precision ($$\\frac{TP}{TP + FP}$$)**: 
-  When the model sounds the alarm ("Purchase Intention"), how often is the visitor truly a buyer? 
-  <br>🎯 *Business Cost of False Positive:* Wasting marketing spend, such as distributing expensive 20% discount checkout vouchers to users who would have purchased anyway or window shoppers who still won't buy.
-
-* **Recall / Sensitivity ($$\\frac{TP}{TP + FN}$$)**: 
-  Out of all shoppers who actually purchased, what fraction did the model successfully identify?
-  <br>🎯 *Business Cost of False Negative:* Missed sales conversion. If a high-intent shopper leaves without an automated incentive, potential revenue is lost forever.
-
-* **F1-Score ($$2 \\times \\frac{\\text{Precision} \\times \\text{Recall}}{\\text{Precision} + \\text{Recall}}$$)**: 
-  The harmonic mean of Precision and Recall. F1 heavily penalizes extreme disparities (e.g. 99% precision with 2% recall). It is our primary optimization criterion because e-commerce systems require both reliable alerts and high buyer coverage.
-
-* **ROC-AUC (Area Under ROC Curve)**: 
-  The probability that the classifier ranks a randomly chosen positive session higher than a randomly chosen negative session across all decision thresholds $\\tau \\in [0, 1]$. An AUC $\\ge 0.90$ represents outstanding discrimination.
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Row 6: Best F1 vs Best Recall Trade-off Figure
-    # ─────────────────────────────────────────────────────────────────────────
     tradeoff_fig = FIGS / "best_f1_vs_best_recall.png"
     if tradeoff_fig.exists():
-        st.markdown("""
-<div class="result-card" style="margin-top:12px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Champion Trade-Off Comparison: Best F1 vs Best Recall</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Side-by-side metric comparison between the two research champion configurations on the held-out test split</div>
-    </div>
-    <span class="viva-pill">Research Benchmark</span>
-  </div>
-""", unsafe_allow_html=True)
-        st.image(str(tradeoff_fig), caption="Best F1 (RF + SMOTE) vs Best Recall (SVM + Class Weight) — Visualised metric comparison", use_container_width=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+        with st.expander("Champion metrics · held-out test", expanded=False):
+            st.image(str(tradeoff_fig), use_container_width=True)
+
+    # Keep full experiment access available without dominating the page.
+    with st.expander("Explore all experiment results"):
+        f_col1, f_col2, f_col3 = st.columns(3)
+        with f_col1:
+            sel_model = st.selectbox("Model", ["All Models", "Random Forest", "Support Vector Machine", "Logistic Regression", "Decision Tree"], key="mp_filter_model")
+        with f_col2:
+            sel_feat = st.selectbox("Features", ["All Configurations", "tree_importance", "rfe", "correlation", "all"], key="mp_filter_feat")
+        with f_col3:
+            sel_imb = st.selectbox("Imbalance strategy", ["All Strategies", "smote", "class_weight", "none"], key="mp_filter_imb")
+        model_map = {"Random Forest": "random_forest", "Support Vector Machine": "svm", "Logistic Regression": "logistic_regression", "Decision Tree": "decision_tree"}
+        filtered_df = df.copy()
+        if sel_model != "All Models":
+            filtered_df = filtered_df[filtered_df["model"] == model_map[sel_model]]
+        if sel_feat != "All Configurations":
+            filtered_df = filtered_df[filtered_df["feature_configuration"] == sel_feat]
+        if sel_imb != "All Strategies":
+            filtered_df = filtered_df[filtered_df["imbalance_strategy"] == sel_imb]
+        filtered_df = filtered_df.sort_values("f1", ascending=False)
+        exp_view = pd.DataFrame({
+            "Model": filtered_df["model"].str.replace("_", " ").str.title(),
+            "Features": filtered_df["feature_configuration"], "Imbalance": filtered_df["imbalance_strategy"],
+            "F1": filtered_df["f1"].map(lambda v: f"{v:.3f}"), "Recall": filtered_df["recall"].map(lambda v: f"{v*100:.1f}%"),
+            "Precision": filtered_df["precision"].map(lambda v: f"{v*100:.1f}%"), "ROC-AUC": filtered_df["roc_auc"].map(lambda v: f"{v:.3f}"),
+        })
+        st.dataframe(exp_view, use_container_width=True, hide_index=True)
+
+    with st.expander("Metric guide"):
+        st.markdown("**F1** balances precision and recall. **Recall** measures captured purchases. **ROC-AUC** measures ranking quality across thresholds. **95% CI** shows the cross-validation uncertainty range.")
 
 # ═════════════════════════════════════════════════════════════════════════════
 #  PAGE: FEATURE IMPORTANCE & SHAP INTERPRETABILITY
