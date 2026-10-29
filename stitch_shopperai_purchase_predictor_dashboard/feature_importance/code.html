@@ -1,0 +1,463 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary-container":"#dae2fd","tertiary-fixed-dim":"#4edea3","primary-fixed-dim":"#b4c5ff","outline-variant":"#c3c6d7","on-error":"#ffffff","on-secondary":"#ffffff","primary-fixed":"#dbe1ff","surface-container":"#e5eeff","on-primary-fixed":"#00174b","on-surface":"#0b1c30","outline":"#737686","on-tertiary-fixed":"#002113","tertiary-fixed":"#6ffbbe","inverse-surface":"#213145","surface-bright":"#f8f9ff","tertiary-container":"#007d55","on-primary-container":"#eeefff","surface-container-highest":"#d3e4fe","on-secondary-container":"#5c647a","on-primary":"#ffffff","inverse-primary":"#b4c5ff","secondary-fixed":"#dae2fd","surface-tint":"#0053db","on-error-container":"#93000a","on-primary-fixed-variant":"#003ea8","surface":"#f8f9ff","surface-container-lowest":"#ffffff","error":"#ba1a1a","primary":"#004ac6","surface-container-high":"#dce9ff","tertiary":"#006242","error-container":"#ffdad6","secondary":"#565e74","on-tertiary-fixed-variant":"#005236","on-surface-variant":"#434655","secondary-fixed-dim":"#bec6e0","primary-container":"#2563eb","background":"#f8f9ff","surface-dim":"#cbdbf5","surface-variant":"#d3e4fe","surface-container-low":"#eff4ff","on-tertiary":"#ffffff","inverse-on-surface":"#eaf1ff","on-background":"#0b1c30","on-tertiary-container":"#bdffdb","on-secondary-fixed":"#131b2e","on-secondary-fixed-variant":"#3f465c"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-xl":"2rem","space-sm":"0.5rem",gutter:"1.5rem","space-lg":"1.5rem",margin:"2rem","space-xs":"0.25rem","gutter-sm":"1rem","space-md":"1rem","margin-mobile":"1rem"},fontFamily:{"metric-tabular":["Inter"],"label-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"metric-display":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-lg":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"body-sm":["Inter"],"label-md":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"]},fontSize:{"metric-tabular":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"label-lg":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"body-md":["0.875rem",{lineHeight:"1.375rem",fontWeight:"400"}],"label-sm":["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.05em",fontWeight:"600"}],"metric-display":["2rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-xl":["2.25rem",{lineHeight:"2.75rem",letterSpacing:"-0.025em",fontWeight:"700"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",fontWeight:"400"}],"headline-lg":["1.5rem",{lineHeight:"2rem",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-sm":["1rem",{lineHeight:"1.5rem",fontWeight:"600"}],"headline-md":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"-0.015em",fontWeight:"600"}],"body-sm":["0.75rem",{lineHeight:"1.125rem",fontWeight:"400"}],"label-md":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.025em",fontWeight:"500"}],"headline-xl-mobile":["1.75rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-on-surface z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">analytics</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-surface-container-lowest tracking-tight truncate">ShopperAI</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Purchase Intention ML Research</span></div></div><div class="bg-inverse-surface rounded-xl p-space-sm flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-xs min-w-0"><span class="relative flex h-2 w-2 shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-fixed"></span></span><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-surface-container-lowest uppercase tracking-wider truncate">Inference Ready</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Random Forest</span></div></div><span class="font-label-sm text-label-sm bg-tertiary-container text-on-tertiary-container px-space-xs py-0.5 rounded-lg shrink-0">READY</span></div><nav class="flex flex-col gap-space-xs pt-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-label-lg rounded-xl"><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="overview" href="#">Overview</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="live-prediction" href="#">Live Prediction</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="model-performance" href="#">Model Performance</a><a aria-current="page" class="flex items-center px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-label-lg rounded-xl" data-path="feature-importance" href="#">Feature Importance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="class-imbalance" href="#">Class Imbalance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="about-project" href="#">About Project</a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-inverse-surface/40 p-space-sm rounded-xl"><div class="flex items-center justify-between text-outline-variant"><span class="font-label-sm text-label-sm uppercase tracking-wider">Dataset Split</span><span class="font-metric-tabular text-metric-tabular text-tertiary-fixed">80/20 Stratified</span></div><div class="w-full bg-inverse-surface rounded-full h-1.5 overflow-hidden"><div class="bg-tertiary-fixed h-full rounded-full w-[80%]"></div></div><span class="font-body-sm text-body-sm text-outline-variant truncate">12,330 Total Sessions · 18 Features</span></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-secondary-container/70 text-on-secondary-fixed px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">school</span><span class="font-label-sm text-label-sm font-semibold tracking-wide uppercase">University Project Viva Demo</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-secondary">dataset</span><span class="font-body-sm text-body-sm text-on-surface-variant font-medium">UCI Online Shoppers (12,330 Sessions)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">account_tree</span><span class="font-label-md text-label-md font-semibold text-on-surface">Random Forest Classifier</span></div></div></header><main class="w-full pt-16 flex-1 bg-surface px-space-lg py-space-md"><div class="flex flex-col w-full gap-space-lg pb-space-xl">
+<!-- SECTION HEADER & STAT HIGHLIGHTS -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md pt-space-xs">
+<div class="flex flex-col gap-space-xs max-w-2xl">
+<div class="flex items-center gap-space-xs text-primary font-label-md">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span class="uppercase tracking-wider">Explainable AI &amp; Feature Attribution</span>
+</div>
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">Feature Importance &amp; Explanatory Analytics</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Global feature relevance and local prediction attribution analysis evaluated on 12,330 UCI e-commerce sessions.</p>
+</div>
+<!-- Quick Telemetry Badge Group -->
+<div class="flex items-center gap-space-sm bg-surface-container-lowest p-space-sm rounded-xl shadow-sm self-start md:self-auto">
+<div class="flex flex-col px-space-sm border-r border-outline-variant/30">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Key Predictor</span>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold">PageValues (38.6%)</span>
+</div>
+<div class="flex flex-col px-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Best F1 Subset</span>
+<span class="font-metric-tabular text-metric-tabular text-tertiary font-bold">Top 8 (0.664)</span>
+</div>
+</div>
+</div>
+<!-- SECTION 1: GLOBAL FEATURE IMPORTANCE (THE BIG PICTURE) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-[18px]">bar_chart</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Top 10 Global Features (Random Forest Gini Importance &amp; MDI)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Mean Decrease in Impurity (MDI) across 500 decision trees on 80% stratified training partition.</p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl">
+<span class="w-2.5 h-2.5 rounded-full bg-primary-container inline-block"></span>
+<span class="font-label-sm text-label-sm text-on-surface">Primary Signal (&gt;35%)</span>
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed-dim inline-block ml-space-xs"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Behavioral / Temporal</span>
+</div>
+</div>
+<!-- Dominance Indicator Card -->
+<div class="bg-primary/5 rounded-xl p-space-md flex flex-col md:flex-row md:items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px] shrink-0 mt-0.5">verified</span>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-primary font-bold">Statistical Asymmetry Detected</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">PageValues accounts for more explanatory weight than the next four features combined (38.6% vs. 35.9%). Its presence acts as a direct proxy for high-intent checkout interactions.</span>
+</div>
+</div>
+<div class="shrink-0 flex items-center gap-space-xs bg-surface-container-lowest px-space-md py-space-xs rounded-xl shadow-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Concentration Ratio:</span>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold">3.44× vs #2 ExitRates</span>
+</div>
+</div>
+<!-- Visual Bar Chart -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<!-- 1. PageValues -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="font-bold text-primary flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">1</span>
+            PageValues
+            <span class="bg-primary-container text-on-primary-container text-[10px] px-1.5 py-0.5 rounded-lg font-semibold tracking-wider uppercase">Dominant Driver</span>
+</span>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold">38.6%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden p-0.5">
+<div class="bg-primary-container h-full rounded-full transition-all duration-700 ease-out" style="width: 38.6%"></div>
+</div>
+</div>
+<!-- 2. ExitRates -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">2</span>
+            ExitRates
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">11.2%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 11.2%"></div>
+</div>
+</div>
+<!-- 3. ProductRelated_Duration -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">3</span>
+            ProductRelated_Duration
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">9.8%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 9.8%"></div>
+</div>
+</div>
+<!-- 4. ProductRelated -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">4</span>
+            ProductRelated
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">8.5%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 8.5%"></div>
+</div>
+</div>
+<!-- 5. BounceRates -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">5</span>
+            BounceRates
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">6.4%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 6.4%"></div>
+</div>
+</div>
+<!-- 6. Administrative_Duration -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">6</span>
+            Administrative_Duration
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">5.1%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 5.1%"></div>
+</div>
+</div>
+<!-- 7. Month (Nov/Dec) -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">7</span>
+            Month (Nov/Dec Seasonality)
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">4.8%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 4.8%"></div>
+</div>
+</div>
+<!-- 8. Administrative -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">8</span>
+            Administrative
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">3.9%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 3.9%"></div>
+</div>
+</div>
+<!-- 9. Informational_Duration -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">9</span>
+            Informational_Duration
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">2.7%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 2.7%"></div>
+</div>
+</div>
+<!-- 10. Region -->
+<div class="group flex flex-col gap-1 p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<span class="text-on-surface flex items-center gap-space-xs">
+<span class="w-4 text-center font-metric-tabular text-on-surface-variant">10</span>
+            Region
+          </span>
+<span class="font-metric-tabular text-metric-tabular text-secondary font-semibold">2.2%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700 ease-out" style="width: 2.2%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 2: FEATURE SELECTION EXPERIMENTATION COMPARISON -->
+<div class="flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Comparison of 4 Feature Selection Strategies</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Experimental ablation testing the curse of dimensionality versus information loss across diverse heuristics.</p>
+</div>
+<div class="flex items-center gap-space-xs text-tertiary font-label-sm bg-tertiary-container/10 px-space-sm py-1 rounded-xl self-start sm:self-auto">
+<span class="material-symbols-outlined text-[16px]">equalizer</span>
+<span>Validation Metric: Minority F1-Score (Purchase Class)</span>
+</div>
+</div>
+<!-- Strategy Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Strategy 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Baseline</span>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-xs py-0.5 rounded-lg text-secondary font-medium">18 Features</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">All 18 Features</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Preserves complete contextual information without pruning low-variance metadata.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs border-t border-surface-container">
+<div class="flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">F1-Score</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">0.658</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary h-full rounded-full" style="width: 65.8%"></div>
+</div>
+</div>
+</div>
+<!-- Strategy 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Univariate</span>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-xs py-0.5 rounded-lg text-secondary font-medium">8 Retained</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Correlation Filter</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Threshold cutoff (r &gt; 0.15). Removes redundant web metrics but discards non-linear interactions.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs border-t border-surface-container">
+<div class="flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">F1-Score</span>
+<span class="font-headline-md text-headline-md text-error font-bold">0.641</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 64.1%"></div>
+</div>
+</div>
+</div>
+<!-- Strategy 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm flex flex-col justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Iterative</span>
+<span class="font-label-sm text-label-sm bg-surface-container px-space-xs py-0.5 rounded-lg text-secondary font-medium">10 Selected</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recursive Elimin. (RFE)</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Identifies optimal minimal subset through backward elimination with cross-validation.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs border-t border-surface-container">
+<div class="flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">F1-Score</span>
+<span class="font-headline-md text-headline-md text-on-surface font-bold">0.661</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full" style="width: 66.1%"></div>
+</div>
+</div>
+</div>
+<!-- Strategy 4 (BEST) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-md flex flex-col justify-between gap-space-md relative overflow-hidden ring-2 ring-primary/20">
+<div class="absolute top-0 right-0 bg-tertiary text-on-tertiary font-label-sm text-label-sm px-2.5 py-0.5 rounded-bl-lg font-bold">
+          BEST MODEL
+        </div>
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-bold uppercase tracking-wider">MDI Pruning</span>
+<span class="font-label-sm text-label-sm bg-primary/10 px-space-xs py-0.5 rounded-lg text-primary font-semibold">8 Selected</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-primary font-bold">Tree-Based Importance</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Focuses model capacity on high-signal behavioral features, shedding noise and reducing variance.</p>
+</div>
+<div class="flex flex-col gap-space-xs pt-space-xs border-t border-primary/10">
+<div class="flex items-baseline justify-between">
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">F1-Score</span>
+<span class="font-headline-md text-headline-md text-tertiary font-bold">0.664</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden">
+<div class="bg-tertiary h-full rounded-full" style="width: 66.4%"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 3: DEEP-DIVE: HOW DOES PAGEVALUES WORK? -->
+<div class="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm flex flex-col gap-space-lg">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary text-[18px]">travel_explore</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Feature Deep-Dive: Why PageValues Decides Purchase Intent</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Statistical breakdown of the single highest information-gain predictor in the UCI dataset.</p>
+</div>
+</div>
+<!-- 2-Part Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-center">
+<!-- Left: Behavioral Mechanism (5 Cols) -->
+<div class="lg:col-span-5 flex flex-col gap-space-md bg-surface-container-low p-space-md rounded-xl">
+<div class="flex items-center gap-space-xs text-primary font-label-md">
+<span class="material-symbols-outlined text-[18px]">calculate</span>
+<span>Behavioral Mechanism &amp; Formula</span>
+</div>
+<div class="bg-surface-container-lowest p-space-sm rounded-lg shadow-sm flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">Google Analytics Definition:</span>
+<div class="font-metric-tabular text-metric-tabular text-on-surface font-semibold bg-surface-container p-2 rounded-lg text-center">
+            PageValue = (Transaction Revenue + Total Goal Value) ÷ Unique Pageviews
+          </div>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">
+          In practice, <strong class="text-on-surface">PageValues quantifies commercial exposure</strong>. A non-zero PageValue proves the visitor interacted with pages that historically concluded in completed transactions (such as checkout cart summaries, active promotional landers, or payment gateways).
+        </p>
+<div class="flex items-start gap-space-xs text-on-surface bg-surface-container-lowest p-space-sm rounded-lg">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">tips_and_updates</span>
+<span class="font-body-sm text-body-sm">
+            Consequently, browsing duration alone is merely passive engagement, whereas <strong>PageValues acts as empirical commitment telemetry</strong>.
+          </span>
+</div>
+</div>
+<!-- Right: Empirical Distribution in Dataset (7 Cols) -->
+<div class="lg:col-span-7 flex flex-col gap-space-md bg-surface-container-lowest p-space-md rounded-xl shadow-inner">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs text-on-surface font-label-md">
+<span class="material-symbols-outlined text-[18px] text-tertiary">analytics</span>
+<span>Empirical Distribution in Dataset (12,330 Sessions)</span>
+</div>
+<span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-space-xs py-0.5 rounded-lg font-medium">Bimodal Cleavage</span>
+</div>
+<!-- 2 Contrast Stat Tiles -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-sm">
+<!-- Non-Purchase -->
+<div class="bg-surface-container-low p-space-sm rounded-xl flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-on-surface-variant">Non-Purchase Sessions</span>
+<span class="material-symbols-outlined text-error text-[18px]">cancel</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-display text-metric-display text-on-surface">1.98</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Mean Value</span>
+</div>
+<span class="font-body-sm text-body-sm text-error font-medium">86.2% of sessions have PageValue = 0.0</span>
+</div>
+<!-- Purchase Sessions -->
+<div class="bg-primary/5 p-space-sm rounded-xl flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm text-primary font-semibold">Purchase Sessions (Revenue=True)</span>
+<span class="material-symbols-outlined text-tertiary text-[18px]">check_circle</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-metric-display text-metric-display text-primary">27.26</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">Mean Value</span>
+</div>
+<span class="font-body-sm text-body-sm text-tertiary font-semibold">78.4% of sessions have PageValue &gt; 0.0</span>
+</div>
+</div>
+<!-- Visual Distribution Comparison Bar -->
+<div class="flex flex-col gap-space-xs pt-space-xs">
+<div class="flex items-center justify-between font-label-sm text-label-sm text-on-surface-variant">
+<span>Visual Divergence in Mean PageValue Magnitude</span>
+<span class="font-metric-tabular text-metric-tabular font-bold text-primary">13.76× Higher in Converting Cohort</span>
+</div>
+<!-- Comparative Dual Bars -->
+<div class="flex flex-col gap-2">
+<!-- Non-Purchase Bar -->
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-on-surface-variant w-28 shrink-0">Non-Purchase</span>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden">
+<div class="bg-error h-full rounded-full" style="width: 7.2%"></div>
+</div>
+<span class="font-metric-tabular text-metric-tabular text-on-surface-variant w-12 text-right">1.98</span>
+</div>
+<!-- Purchase Bar -->
+<div class="flex items-center gap-space-sm">
+<span class="font-label-sm text-label-sm text-primary font-bold w-28 shrink-0">Purchase</span>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden">
+<div class="bg-primary-container h-full rounded-full" style="width: 100%"></div>
+</div>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold w-12 text-right">27.26</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-outline pt-1 text-center sm:text-left">
+            Normalized against max mean threshold. Over 4,200 non-converting visits never trigger a single conversion-routed URL.
+          </span>
+</div>
+</div>
+</div>
+</div>
+<!-- SECTION 4: GLOBAL VS LOCAL EXPLANATION DISTINCTION (VIVA EXAMINER BANNER) -->
+<div class="bg-inverse-surface text-surface-container-lowest rounded-xl p-space-lg shadow-md flex flex-col gap-space-md">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-lg bg-tertiary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container text-[18px]">school</span>
+</div>
+<div>
+<span class="font-label-sm text-label-sm text-tertiary-fixed font-bold uppercase tracking-wider">Viva Defense Anchor</span>
+<h2 class="font-headline-md text-headline-md text-surface-container-lowest">Conceptual Clarity: Global vs. Local Explanations</h2>
+</div>
+</div>
+<div class="bg-surface-container-lowest/10 px-space-sm py-1 rounded-xl text-outline-variant font-label-sm self-start sm:self-auto">
+        XAI Taxonomical Rigor
+      </div>
+</div>
+<!-- Split Architectural Boxes -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md pt-space-xs">
+<!-- Left: Global Importance -->
+<div class="bg-surface-container-lowest/5 rounded-xl p-space-md flex flex-col gap-space-sm border-l-4 border-primary">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-surface-container-lowest">Global Feature Relevance</span>
+<span class="font-label-sm text-label-sm bg-primary/20 text-primary-fixed px-2 py-0.5 rounded-lg">Dataset-Wide (N=12,330)</span>
+</div>
+<p class="font-body-md text-body-md text-outline-variant">
+          Answers: <em class="text-surface-container-lowest">"What behavioral signals does the model consistently rely upon across the entire population?"</em>
+</p>
+<ul class="flex flex-col gap-1.5 font-body-sm text-body-sm text-outline-variant pt-space-xs">
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[16px]">arrow_right_alt</span>
+<span>Evaluated via <strong>Tree Gini Impurity (MDI)</strong> &amp; Permutation Tests.</span>
+</li>
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[16px]">arrow_right_alt</span>
+<span>Invariant static ranking: PageValues (38.6%) &gt; ExitRates (11.2%).</span>
+</li>
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary-fixed text-[16px]">arrow_right_alt</span>
+<span>Used for <strong>feature pruning, ETL reduction</strong>, and model compression.</span>
+</li>
+</ul>
+</div>
+<!-- Right: Local Explanation -->
+<div class="bg-surface-container-lowest/5 rounded-xl p-space-md flex flex-col gap-space-sm border-l-4 border-tertiary-fixed">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-surface-container-lowest">Local Prediction Attribution</span>
+<span class="font-label-sm text-label-sm bg-tertiary-container/30 text-tertiary-fixed px-2 py-0.5 rounded-lg">Instance-Level (Visitor #4829)</span>
+</div>
+<p class="font-body-md text-body-md text-outline-variant">
+          Answers: <em class="text-surface-container-lowest">"Why did this specific individual receive an 84.2% purchase probability right now?"</em>
+</p>
+<ul class="flex flex-col gap-1.5 font-body-sm text-body-sm text-outline-variant pt-space-xs">
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">arrow_right_alt</span>
+<span>Evaluated via <strong>SHAP (SHapley Additive exPlanations)</strong> game theory values.</span>
+</li>
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">arrow_right_alt</span>
+<span>Explains edge cases (e.g. Visitor #4829 converted despite PageValue = 0 due to 18 min in cart).</span>
+</li>
+<li class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary-fixed text-[16px]">arrow_right_alt</span>
+<span>Powers <strong>auditable compliance, personalization triggers</strong>, and viva defense demonstrations.</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div></main></div></body></html>
