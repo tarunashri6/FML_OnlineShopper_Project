@@ -2034,9 +2034,9 @@ def render_feature_importance() -> None:
 # ═════════════════════════════════════════════════════════════════════════════
 def render_class_imbalance() -> None:
     render_page_header(
-        title="Class Imbalance Problem & Resampling Solutions",
+        title="Class Imbalance Analysis & Resampling Solutions",
         badge="⚖️ Empirical Resampling & Asymmetric Cost Optimization",
-        desc="Diagnostic Evaluation of 84.5% vs 15.5% Class Skew: Comparing SMOTE, Class Weighting, and Baseline Unweighted Learning"
+        desc="Diagnostic Evaluation of 84.5% vs 15.5% Class Skew: Benchmarking Baseline (No Resampling), Cost-Sensitive Class Weighting, and SMOTE across 48 Controlled Experiments"
     )
 
     stats = load_dataset_stats()
@@ -2050,124 +2050,260 @@ def render_class_imbalance() -> None:
     purchase_pct = (purchases / total_sessions) * 100
     imbalance_ratio = no_purchase / purchases
 
+    # Helper for robust, self-contained Confusion Matrix cards (eliminates CommonMark code block breaks)
+    def _format_cm_card(
+        title: str,
+        subtitle: str,
+        tp: int,
+        fp: int,
+        fn: int,
+        tn: int,
+        badge_text: str = "",
+        badge_bg: str = "var(--primary)"
+    ) -> str:
+        total_neg = tn + fp
+        total_pos = tp + fn
+        total = total_neg + total_pos
+        acc = (tp + tn) / total * 100 if total else 0
+        tnr = (tn / total_neg * 100) if total_neg else 0
+        fpr = (fp / total_neg * 100) if total_neg else 0
+        fnr = (fn / total_pos * 100) if total_pos else 0
+        tpr = (tp / total_pos * 100) if total_pos else 0
+
+        badge_html = f'<span class="viva-pill" style="background:{badge_bg};color:#ffffff!important;font-size:0.6rem;padding:2px 6px;border-radius:4px;">{badge_text}</span>' if badge_text else ""
+
+        return f"""<div class="cm-card" style="margin-bottom:0px;height:100%;padding:14px 16px;">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+    <div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+        {badge_html}
+        <div class="result-card-title" style="margin:0;font-size:0.88rem;">{title}</div>
+      </div>
+      <div style="font-size:0.7rem;color:var(--secondary);">{subtitle}</div>
+    </div>
+    <span class="meta-pill" style="font-size:0.66rem;font-weight:600;">Acc {acc:.1f}%</span>
+  </div>
+  <div style="display:grid;grid-template-columns:82px 1fr 1fr;gap:5px;margin-bottom:5px;">
+    <div></div>
+    <div class="cm-grid-header">Pred: No</div>
+    <div class="cm-grid-header">Pred: Buy</div>
+  </div>
+  <div style="display:grid;grid-template-columns:82px 1fr 1fr;gap:5px;margin-bottom:5px;">
+    <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;font-size:0.62rem;line-height:1.2;">Actual No</div>
+    <div class="cm-cell tn" style="min-height:72px;padding:8px;">
+      <div class="cm-cell-top"><span class="cm-cell-name">TN</span><span class="cm-tag">TN</span></div>
+      <div class="cm-count" style="font-size:1.3rem;margin:2px 0;">{tn:,}</div>
+      <div class="cm-rate"><span style="font-size:0.65rem;">Spec</span><span class="cm-rate-val" style="font-size:0.68rem;">{tnr:.1f}%</span></div>
+    </div>
+    <div class="cm-cell fp" style="min-height:72px;padding:8px;">
+      <div class="cm-cell-top"><span class="cm-cell-name">FP</span><span class="cm-tag">FP</span></div>
+      <div class="cm-count" style="font-size:1.3rem;margin:2px 0;">{fp:,}</div>
+      <div class="cm-rate"><span style="font-size:0.65rem;">False Alarm</span><span class="cm-rate-val" style="font-size:0.68rem;">{fpr:.1f}%</span></div>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:82px 1fr 1fr;gap:5px;">
+    <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;font-size:0.62rem;line-height:1.2;">Actual Buy</div>
+    <div class="cm-cell fn" style="min-height:72px;padding:8px;">
+      <div class="cm-cell-top"><span class="cm-cell-name">FN</span><span class="cm-tag">FN</span></div>
+      <div class="cm-count" style="font-size:1.3rem;margin:2px 0;">{fn:,}</div>
+      <div class="cm-rate"><span style="font-size:0.65rem;">Missed</span><span class="cm-rate-val" style="font-size:0.68rem;">{fnr:.1f}%</span></div>
+    </div>
+    <div class="cm-cell tp" style="min-height:72px;padding:8px;">
+      <div class="cm-cell-top"><span class="cm-cell-name">TP</span><span class="cm-tag">TP</span></div>
+      <div class="cm-count" style="font-size:1.3rem;margin:2px 0;">{tp:,}</div>
+      <div class="cm-rate"><span style="font-size:0.65rem;">Recall</span><span class="cm-rate-val" style="font-size:0.68rem;">{tpr:.1f}%</span></div>
+    </div>
+  </div>
+</div>"""
+
     # ─────────────────────────────────────────────────────────────────────────
     # SECTION A: Ground Truth Distribution & The Accuracy Paradox
     # ─────────────────────────────────────────────────────────────────────────
-    st.markdown('<div class="section-heading"><span>📊 Section A: Ground Truth Distribution & The Accuracy Paradox</span></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading"><span>📊 Section A: Ground Truth Distribution &amp; The Accuracy Paradox</span></div>', unsafe_allow_html=True)
 
-    sec_a_col1, sec_a_col2 = st.columns([1.1, 1.1], gap="medium")
+    # 1. Row 1: Large Donut Chart + Two Clearly Labeled KPI Cards
+    skew_col_chart, skew_col_kpi = st.columns([1.15, 1.05], gap="large")
 
-    with sec_a_col1:
-        st.markdown(f"""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+    with skew_col_chart:
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:0;padding:16px 18px;">
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span class="subtitle-badge" style="background:rgba(0,74,198,0.08);color:var(--primary);border-color:rgba(0,74,198,0.2);">GROUND TRUTH SKEW</span>
-      <span style="font-size:0.75rem;color:var(--secondary);font-weight:600;">Target: Revenue (Boolean)</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span class="subtitle-badge" style="background:rgba(0,74,198,0.08);color:var(--primary);border-color:rgba(0,74,198,0.2);">CLASS SKEW VISUALIZATION</span>
+      <span style="font-size:0.75rem;color:var(--secondary);font-weight:600;">12,330 UCI Sessions</span>
     </div>
-    <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-      The 84.5% vs 15.5% Imbalance Dilemma
+    <div style="font-family:var(--font-head);font-size:1.08rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">
+      Purchase vs. Non-Purchase Session Distribution
     </div>
-    <p style="font-size:0.82rem;color:var(--secondary);line-height:1.5;margin-bottom:16px;">
-      In online retail, purchase conversions are rare positive events. Out of <strong>{total_sessions:,}</strong> total recorded sessions, <strong>{no_purchase:,}</strong> visitors browsed without purchasing, while only <strong>{purchases:,}</strong> completed a purchase.
-    </p>
+    <div style="font-size:0.78rem;color:var(--secondary);margin-bottom:8px;">
+      Natural e-commerce browsing behavior creates a heavy <strong>5.5 : 1</strong> class imbalance.
+    </div>
+  </div>
+</div>""", unsafe_allow_html=True)
 
-  
-    <div style="display:flex;align-items:center;gap:20px;background:var(--surface-low);padding:16px;border-radius:var(--radius-md);margin-bottom:14px;">
-      <div style="position:relative;width:125px;height:125px;flex-shrink:0;">
-        <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
-          <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--secondary-container)" stroke-width="12" stroke-dasharray="212.4 251.3" stroke-linecap="round"/>
-          <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--primary-container)" stroke-width="12" stroke-dasharray="38.9 251.3" stroke-dashoffset="-212.4" stroke-linecap="round"/>
-        </svg>
-        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
-          <span style="font-family:var(--font-head);font-size:1.2rem;font-weight:700;color:var(--on-surface);line-height:1;">{imbalance_ratio:.1f}:1</span>
-          <span style="font-size:0.6rem;text-transform:uppercase;color:var(--secondary);font-weight:700;letter-spacing:0.05em;">Ratio</span>
-        </div>
-      </div>
+        df_dist = pd.DataFrame({
+            "Class Category": [f"Negative: No Purchase ({no_purchase:,} | {no_purchase_pct:.1f}%)", f"Positive: Purchase ({purchases:,} | {purchase_pct:.1f}%)"],
+            "Sessions": [no_purchase, purchases],
+            "Share": [no_purchase_pct, purchase_pct]
+        })
+        donut_chart = alt.Chart(df_dist).mark_arc(innerRadius=62, outerRadius=105).encode(
+            theta=alt.Theta("Sessions:Q"),
+            color=alt.Color(
+                "Class Category:N",
+                scale=alt.Scale(
+                    domain=[f"Negative: No Purchase ({no_purchase:,} | {no_purchase_pct:.1f}%)", f"Positive: Purchase ({purchases:,} | {purchase_pct:.1f}%)"],
+                    range=["#94a3b8", "#004ac6"]
+                ),
+                legend=alt.Legend(orient="bottom", title=None, labelFontSize=11, labelColor="#0b1c30")
+            ),
+            tooltip=[
+                alt.Tooltip("Class Category:N", title="Class"),
+                alt.Tooltip("Sessions:Q", format=",", title="Total Sessions"),
+                alt.Tooltip("Share:Q", format=".2f", title="Share of Traffic (%)")
+            ]
+        ).properties(height=230)
+        st.altair_chart(donut_chart, use_container_width=True)
 
-      <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
-        <div style="background:var(--surface-bright);padding:9px 12px;border-radius:var(--radius-sm);box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.75rem;color:var(--on-surface);font-weight:600;display:flex;align-items:center;gap:6px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--secondary-container);display:inline-block;"></span>
-              Negative (No Revenue)
-            </span>
-            <span style="font-family:var(--font-head);font-size:0.88rem;font-weight:700;color:var(--secondary);">{no_purchase_pct:.2f}%</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--secondary);margin-top:2px;">
-            <span>{no_purchase:,} sessions</span>
-            <span style="background:var(--surface-container);padding:1px 6px;border-radius:4px;font-size:0.62rem;font-weight:600;">Majority Class</span>
-          </div>
-        </div>
-
-        <div style="background:var(--surface-bright);padding:9px 12px;border-radius:var(--radius-sm);box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            <span style="font-size:0.75rem;color:var(--primary);font-weight:700;display:flex;align-items:center;gap:6px;">
-              <span style="width:8px;height:8px;border-radius:50%;background:var(--primary-container);display:inline-block;"></span>
-              Positive (Revenue True)
-            </span>
-            <span style="font-family:var(--font-head);font-size:0.88rem;font-weight:700;color:var(--primary);">{purchase_pct:.2f}%</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--secondary);margin-top:2px;">
-            <span>{purchases:,} sessions</span>
-            <span style="background:rgba(37,99,235,0.1);color:var(--primary);padding:1px 6px;border-radius:4px;font-size:0.62rem;font-weight:700;">Minority Class</span>
-          </div>
-        </div>
-      </div>
+    with skew_col_kpi:
+        st.markdown(f"""<div style="display:flex;flex-direction:column;gap:12px;height:100%;justify-content:center;">
+  <div class="result-card" style="margin-bottom:0;padding:16px 18px;border-left:4px solid #94a3b8;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-size:0.7rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:0.05em;">Majority Class (Negative)</span>
+      <span style="font-size:0.75rem;font-weight:700;background:var(--surface-container);color:var(--secondary);padding:2px 8px;border-radius:4px;">84.53% Traffic</span>
+    </div>
+    <div style="font-family:var(--font-head);font-size:1.75rem;font-weight:700;color:var(--on-surface);line-height:1.1;margin-bottom:4px;">
+      {no_purchase:,} <span style="font-size:0.85rem;font-weight:500;color:var(--secondary);">Sessions</span>
+    </div>
+    <div style="font-size:0.77rem;color:var(--secondary);line-height:1.4;">
+      <strong>Target: Revenue = False.</strong> Visitors who casually browse, evaluate product pages, or exit without initiating or completing a checkout.
     </div>
   </div>
 
-  <div style="font-size:0.75rem;color:var(--secondary);background:var(--surface-container-low);padding:8px 12px;border-radius:var(--radius-sm);">
-    📌 <strong>Imbalance Context:</strong> For every single paying customer, ~5.5 non-buying visitors visit the platform. Models trained on raw data suffer severe majority-class bias.
+  <div class="result-card" style="margin-bottom:0;padding:16px 18px;border-left:4px solid var(--primary);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-size:0.7rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:0.05em;">Minority Target (Positive)</span>
+      <span style="font-size:0.75rem;font-weight:700;background:rgba(0,74,198,0.1);color:var(--primary);padding:2px 8px;border-radius:4px;">15.47% Traffic</span>
+    </div>
+    <div style="font-family:var(--font-head);font-size:1.75rem;font-weight:700;color:var(--primary);line-height:1.1;margin-bottom:4px;">
+      {purchases:,} <span style="font-size:0.85rem;font-weight:500;color:var(--secondary);">Sessions</span>
+    </div>
+    <div style="font-size:0.77rem;color:var(--secondary);line-height:1.4;">
+      <strong>Target: Revenue = True.</strong> Rare high-intent sessions resulting in confirmed purchases. Represents the sole commercial value for the business.
+    </div>
   </div>
-</div>
-""", unsafe_allow_html=True)
 
-    with sec_a_col2:
-        st.markdown(f"""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;">
+  <div style="background:var(--surface-low);padding:10px 14px;border-radius:var(--radius-sm);display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-size:0.75rem;color:var(--secondary);font-weight:600;">⚖️ Class Imbalance Skew Ratio:</span>
+    <span style="font-family:var(--font-head);font-size:1.1rem;font-weight:700;color:var(--primary);">{imbalance_ratio:.2f} to 1</span>
+  </div>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # 2. Row 2: Visual Comparison — Naive Predictor vs Meaningful ML Classifier
+    st.markdown('<div class="result-card-title" style="font-size:0.95rem;margin-bottom:8px;">⚠️ The Accuracy Paradox: Why Overall Accuracy Alone is Misleading</div>', unsafe_allow_html=True)
+
+    paradox_col_chart, paradox_col_text = st.columns([1.25, 0.95], gap="large")
+
+    with paradox_col_chart:
+        df_paradox = pd.DataFrame([
+            {"Predictor": "Naive Zero-Rule (Predicts 100% 'No')", "Metric": "Overall Accuracy", "Score (%)": 84.51, "Display": "84.5%"},
+            {"Predictor": "Naive Zero-Rule (Predicts 100% 'No')", "Metric": "Buyer Recall", "Score (%)": 0.0, "Display": "0.0%"},
+            {"Predictor": "Naive Zero-Rule (Predicts 100% 'No')", "Metric": "F1-Score", "Score (%)": 0.0, "Display": "0.00"},
+            {"Predictor": "Champion ML (Random Forest + SMOTE)", "Metric": "Overall Accuracy", "Score (%)": 89.29, "Display": "89.3%"},
+            {"Predictor": "Champion ML (Random Forest + SMOTE)", "Metric": "Buyer Recall", "Score (%)": 68.32, "Display": "68.3%"},
+            {"Predictor": "Champion ML (Random Forest + SMOTE)", "Metric": "F1-Score", "Score (%)": 66.41, "Display": "0.66"},
+        ])
+
+        chart_paradox = alt.Chart(df_paradox).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+            x=alt.X("Metric:N", title=None, axis=alt.Axis(labelFontSize=11, labelFontWeight="bold", labelAngle=0)),
+            y=alt.Y("Score (%):Q", title="Evaluation Metric (%)", scale=alt.Scale(domain=[0, 100]), axis=alt.Axis(format=".0f", grid=True)),
+            color=alt.Color(
+                "Predictor:N",
+                scale=alt.Scale(
+                    domain=["Naive Zero-Rule (Predicts 100% 'No')", "Champion ML (Random Forest + SMOTE)"],
+                    range=["#ba1a1a", "#006242"]
+                ),
+                legend=alt.Legend(orient="top", title=None, labelFontSize=11, labelColor="#0b1c30")
+            ),
+            xOffset="Predictor:N",
+            tooltip=[
+                alt.Tooltip("Predictor:N", title="Approach"),
+                alt.Tooltip("Metric:N", title="Metric"),
+                alt.Tooltip("Display:N", title="Score")
+            ]
+        ).properties(height=230)
+        st.altair_chart(chart_paradox, use_container_width=True)
+
+    with paradox_col_text:
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:0;padding:16px 18px;border-top:3px solid var(--error);">
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <span class="subtitle-badge" style="background:rgba(186,26,26,0.08);color:var(--error);border-color:rgba(186,26,26,0.2);">CRITICAL FAILURE MODE</span>
-      <span style="font-size:0.75rem;color:var(--error);font-weight:700;">⚠️ The Accuracy Paradox</span>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
+      <span class="viva-pill" style="background:rgba(186,26,26,0.1);color:var(--error)!important;">CRITICAL PARADOX</span>
+      <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">The Zero-Rule Fallacy</span>
     </div>
-    <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-      Deceptive Telemetry on Imbalanced Data
-    </div>
-    <p style="font-size:0.82rem;color:var(--secondary);line-height:1.5;margin-bottom:14px;">
-      Standard loss functions minimize aggregate misclassification count. When 84.5% of samples belong to the negative class, a trivial model predicting <em>No Purchase</em> unconditionally achieves deceptively high accuracy.
+    <p style="font-size:0.79rem;color:var(--secondary);line-height:1.45;margin-bottom:10px;">
+      A dummy classifier that blindly outputs <em>"No Purchase"</em> for every single visitor achieves an impressive <strong>84.5% accuracy</strong>, yet:
     </p>
-
-    <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:14px;margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-        <span style="font-size:0.75rem;font-weight:700;color:var(--on-surface);">Naive Zero-Rule Classifier (Predicts "No" 100%)</span>
-        <span style="font-size:0.65rem;font-weight:700;color:var(--error);background:rgba(186,26,26,0.1);padding:2px 6px;border-radius:4px;">ZERO COMMERCIAL VALUE</span>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;text-align:center;">
-        <div style="background:var(--surface-bright);padding:10px 8px;border-radius:var(--radius-sm);">
-          <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--secondary);display:block;margin-bottom:2px;">Apparent Accuracy</span>
-          <span style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:var(--primary);">{no_purchase_pct:.1f}%</span>
-          <span style="font-size:0.65rem;color:var(--secondary);display:block;margin-top:2px;">Superficially High</span>
-        </div>
-        <div style="background:var(--surface-bright);padding:10px 8px;border-radius:var(--radius-sm);">
-          <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--secondary);display:block;margin-bottom:2px;">Actual Recall</span>
-          <span style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:var(--error);">0.0%</span>
-          <span style="font-size:0.65rem;color:var(--error);font-weight:600;display:block;margin-top:2px;">Misses 100% Buyers</span>
-        </div>
-        <div style="background:var(--surface-bright);padding:10px 8px;border-radius:var(--radius-sm);">
-          <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--secondary);display:block;margin-bottom:2px;">Revenue Captured</span>
-          <span style="font-family:var(--font-head);font-size:1.25rem;font-weight:700;color:var(--error);">$0.00</span>
-          <span style="font-size:0.65rem;color:var(--error);font-weight:600;display:block;margin-top:2px;">No Business Utility</span>
-        </div>
-      </div>
+    <div style="background:var(--surface-low);padding:8px 12px;border-radius:var(--radius-sm);font-size:0.75rem;line-height:1.45;color:var(--on-surface-var);margin-bottom:10px;">
+      • <strong>Identifies 0 out of 382 buyers</strong> (0.0% Recall)<br>
+      • <strong>Captures $0.00</strong> in potential e-commerce revenue<br>
+      • <strong>Requires zero learning</strong> from user clickstream features
     </div>
   </div>
-
-  <div style="font-size:0.75rem;color:var(--on-surface-var);background:rgba(0,74,198,0.06);border:1px solid rgba(0,74,198,0.15);padding:10px 12px;border-radius:var(--radius-sm);">
-    💡 <strong>Methodological Takeaway:</strong> Accuracy must never be used alone to evaluate purchase prediction. Evaluation must rely on <strong>Recall</strong>, <strong>Precision</strong>, <strong>F1-Score</strong>, and <strong>ROC-AUC</strong>.
+  <div style="font-size:0.74rem;color:var(--error);background:rgba(186,26,26,0.06);border:1px solid rgba(186,26,26,0.15);padding:8px 10px;border-radius:var(--radius-sm);">
+    <strong>Key takeaway:</strong> High accuracy can be achieved trivially by predicting the majority class, masking complete failure on actual buyers.
   </div>
-</div>
-""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # 3. Row 3: Compact Precision vs Recall Visual Analogy
+    st.markdown('<div class="result-card-title" style="font-size:0.95rem;margin-bottom:8px;">🎯 Precision vs. Recall: The E-Commerce Commercial Trade-Off</div>', unsafe_allow_html=True)
+
+    tradeoff_col_p, tradeoff_col_r = st.columns(2, gap="large")
+
+    with tradeoff_col_p:
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:0;padding:16px 18px;border-top:3px solid var(--primary);">
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="viva-pill" style="background:rgba(0,74,198,0.1);color:var(--primary)!important;">PRECISION (64.6%)</span>
+      <span style="font-size:0.72rem;color:var(--secondary);font-weight:600;">The "Quality Filter"</span>
+    </div>
+    <div style="font-family:var(--font-head);font-size:1.02rem;font-weight:700;color:var(--on-surface);margin-bottom:4px;">
+      🎯 "When the model flags a buyer, is it right?"
+    </div>
+    <p style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:10px;">
+      <strong>Analogy — Targeted Discount Coupons:</strong> Imagine offering a 15% discount voucher to everyone predicted to buy. High precision ensures vouchers are given only to real prospective buyers, protecting promotional budget from being wasted on casual browsers.
+    </p>
+  </div>
+  <div style="background:var(--surface-low);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.73rem;color:var(--on-surface-var);">
+    <strong>Operational Risk:</strong> Low precision generates false alarms (143 in champion), wasting intervention costs on non-buyers.
+  </div>
+</div>""", unsafe_allow_html=True)
+
+    with tradeoff_col_r:
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;margin-bottom:0;padding:16px 18px;border-top:3px solid var(--tertiary);">
+  <div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span class="viva-pill" style="background:rgba(0,98,66,0.1);color:var(--tertiary)!important;">RECALL (68.3% – 80.6%)</span>
+      <span style="font-size:0.72rem;color:var(--tertiary);font-weight:600;">The "Wide Net"</span>
+    </div>
+    <div style="font-family:var(--font-head);font-size:1.02rem;font-weight:700;color:var(--on-surface);margin-bottom:4px;">
+      🎣 "Out of all actual buyers, how many did we catch?"
+    </div>
+    <p style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:10px;">
+      <strong>Analogy — Cart Abandonment Net:</strong> Imagine catching customers who are about to leave without buying. High recall casts a wide net so that 68%–80% of all potential buyers receive proactive assistance before abandoning their cart.
+    </p>
+  </div>
+  <div style="background:var(--surface-low);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.73rem;color:var(--on-surface-var);">
+    <strong>Operational Risk:</strong> Low recall produces missed buyers (false negatives), leaving revenue on the table.
+  </div>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # 4. Row 4: Concise Academic & Business Methodological Takeaway Banner
+    st.info("💡 **Academic & Methodological Takeaway:** Because 84.5% of sessions are non-purchases, overall accuracy is mathematically blind to minority conversion detection. A trivial model predicting 'No' for everyone achieves 84.5% accuracy while capturing zero revenue. To rigorously evaluate learning algorithms, this research uses: **Recall** (buyer capture sensitivity), **Precision** (promotional efficiency), **F1-Score** (harmonic balance), and **ROC-AUC** (discrimination power across all operating thresholds).")
 
     st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
 
@@ -2175,106 +2311,264 @@ def render_class_imbalance() -> None:
     # SECTION B: Imbalance Strategy Comparison (Ablation Overview)
     # ─────────────────────────────────────────────────────────────────────────
     st.markdown('<div class="section-heading"><span>🔬 Section B: Imbalance Handling Strategies in the 48-Experiment Grid</span></div>', unsafe_allow_html=True)
-    st.markdown("""
-<div style="font-size:0.83rem;color:var(--secondary);margin-bottom:14px;line-height:1.5;">
-  The project systematically tested <strong>3 imbalance handling treatments</strong> across 4 supervised algorithms (<em>Random Forest, SVM, Logistic Regression, Decision Tree</em>) and 4 feature selection subsets (<em>All 75, Correlation 75, RFE 40, Tree-Based 25</em>), totaling 48 controlled trials:
-</div>
-""", unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.8rem;color:var(--secondary);margin-bottom:12px;">Three distinct treatments evaluated across 4 algorithms (<em>Random Forest, SVM, Logistic Regression, Decision Tree</em>) and 4 feature selection subsets (16 controlled trials per strategy):</div>', unsafe_allow_html=True)
+
+    # Calculate verified macro averages dynamically from full_experiment_results.csv
+    macro_s = df.groupby("imbalance_strategy")[["recall", "precision", "f1", "roc_auc", "accuracy"]].mean()
+    base_rec = macro_s.loc["none", "recall"] * 100
+    base_prec = macro_s.loc["none", "precision"] * 100
+    base_f1 = macro_s.loc["none", "f1"]
+    base_auc = macro_s.loc["none", "roc_auc"]
+
+    cw_rec = macro_s.loc["class_weight", "recall"] * 100
+    cw_prec = macro_s.loc["class_weight", "precision"] * 100
+    cw_f1 = macro_s.loc["class_weight", "f1"]
+    cw_auc = macro_s.loc["class_weight", "roc_auc"]
+
+    smote_rec = macro_s.loc["smote", "recall"] * 100
+    smote_prec = macro_s.loc["smote", "precision"] * 100
+    smote_f1 = macro_s.loc["smote", "f1"]
+    smote_auc = macro_s.loc["smote", "roc_auc"]
 
     strat_col1, strat_col2, strat_col3 = st.columns(3, gap="medium")
 
+    # ── PANEL 1: BASELINE (NONE) ─────────────────────────────────────────────
     with strat_col1:
-        st.markdown("""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--secondary);">
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--secondary);margin-bottom:0;padding:16px 18px;">
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span class="viva-pill" style="background:var(--surface-container);color:var(--secondary) !important;">STRATEGY 01</span>
-      <span style="font-size:0.7rem;color:var(--secondary);font-weight:600;">Data: <code>none</code></span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span class="viva-pill" style="background:var(--surface-container);color:var(--secondary)!important;">STRATEGY 01</span>
+      <span style="font-size:0.68rem;color:var(--secondary);font-weight:600;">Data: <code>none</code></span>
     </div>
-    <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-      No Resampling (Baseline)
+    <div style="font-family:var(--font-head);font-size:1.02rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">
+      Baseline (No Resampling)
     </div>
-    <p style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:12px;">
-      Models learn directly from the raw 84.5% / 15.5% training distribution with unweighted cross-entropy / Gini loss.
-    </p>
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);margin-bottom:12px;font-size:0.75rem;">
-      <div style="color:var(--on-surface);font-weight:600;margin-bottom:4px;">Characteristics:</div>
-      <div style="color:var(--secondary);">• High Precision (74% - 76%)</div>
-      <div style="color:var(--secondary);">• Severely depressed Recall (35% - 51%)</div>
-      <div style="color:var(--secondary);">• Conservative decision boundaries</div>
+    <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">
+      Learns from original 84.5% / 15.5% class frequencies.
     </div>
   </div>
-  <div style="background:rgba(186,26,26,0.06);border:1px solid rgba(186,26,26,0.15);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.72rem;color:var(--error);">
-    <strong>Major Pathology:</strong> Misses over half of all purchasing visitors (48% - 64% false negative rate).
+</div>""", unsafe_allow_html=True)
+
+        # Conceptual Visual 1: Imbalanced distribution with biased boundary
+        df_c1 = pd.DataFrame([
+            {"x": 1.2, "y": 2.0, "Class": "Majority (No Purchase)"},
+            {"x": 1.8, "y": 3.8, "Class": "Majority (No Purchase)"},
+            {"x": 2.2, "y": 1.5, "Class": "Majority (No Purchase)"},
+            {"x": 2.8, "y": 4.2, "Class": "Majority (No Purchase)"},
+            {"x": 3.2, "y": 2.6, "Class": "Majority (No Purchase)"},
+            {"x": 3.8, "y": 4.6, "Class": "Majority (No Purchase)"},
+            {"x": 4.2, "y": 1.8, "Class": "Majority (No Purchase)"},
+            {"x": 4.9, "y": 3.6, "Class": "Majority (No Purchase)"},
+            {"x": 5.4, "y": 2.2, "Class": "Majority (No Purchase)"},
+            {"x": 5.8, "y": 4.0, "Class": "Majority (No Purchase)"},
+            {"x": 8.0, "y": 3.2, "Class": "Minority (Purchase)"},
+            {"x": 8.6, "y": 4.1, "Class": "Minority (Purchase)"},
+        ])
+        c1_pts = alt.Chart(df_c1).mark_circle(size=85).encode(
+            x=alt.X("x:Q", scale=alt.Scale(domain=[0, 10]), axis=None),
+            y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 6]), axis=None),
+            color=alt.Color("Class:N", scale=alt.Scale(domain=["Majority (No Purchase)", "Minority (Purchase)"], range=["#94a3b8", "#004ac6"]), legend=None),
+            tooltip=["Class:N"]
+        )
+        df_l1 = pd.DataFrame({"x": [7.1, 7.1], "y": [0, 6]})
+        c1_line = alt.Chart(df_l1).mark_line(color="#ba1a1a", strokeDash=[4, 4]).encode(x="x:Q", y="y:Q")
+        chart1 = (c1_pts + c1_line).properties(height=110, title=alt.TitleParams("Raw Imbalanced Distribution (Boundary Biased)", fontSize=10, color="#565e74"))
+        st.altair_chart(chart1, use_container_width=True)
+
+        st.markdown(f"""<div style="background:var(--surface-low);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;">
+  <div style="font-size:0.7rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;text-transform:uppercase;">Empirical Averages (16 Trials):</div>
+  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:4px;text-align:center;">
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Recall</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--error);">{base_rec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Precision</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--on-surface);">{base_prec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">F1-Score</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--secondary);">{base_f1:.4f}</strong>
+    </div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--secondary);margin-top:8px;line-height:1.4;">
+    • <strong>Loss Function:</strong> Standard unweighted loss ($1.0\times$ error cost)<br>
+    • <strong>Synthetic Rows:</strong> None (0 generated)
   </div>
 </div>
-""", unsafe_allow_html=True)
+<div style="font-size:0.72rem;color:var(--error);background:rgba(186,26,26,0.06);border:1px solid rgba(186,26,26,0.15);padding:8px 10px;border-radius:var(--radius-sm);">
+  ⚠️ <strong>Severe Buyer Misses:</strong> Minimizing unweighted loss ignores rare purchasing patterns, missing 52.5% of actual buyers.
+</div>""", unsafe_allow_html=True)
 
+    # ── PANEL 2: CLASS WEIGHTING ─────────────────────────────────────────────
     with strat_col2:
-        st.markdown("""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--primary);">
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--primary);margin-bottom:0;padding:16px 18px;">
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span class="viva-pill" style="background:rgba(0,74,198,0.1);color:var(--primary) !important;">STRATEGY 02</span>
-      <span style="font-size:0.7rem;color:var(--primary);font-weight:600;">Algorithmic Penalty</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span class="viva-pill" style="background:rgba(0,74,198,0.1);color:var(--primary)!important;">STRATEGY 02</span>
+      <span style="font-size:0.68rem;color:var(--primary);font-weight:600;">Cost-Sensitive Loss</span>
     </div>
-    <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-      Cost-Sensitive Class Weighting
+    <div style="font-family:var(--font-head);font-size:1.02rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">
+      Class Weighting (Balanced)
     </div>
-    <p style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:12px;">
-      Configured via <code>class_weight='balanced'</code>. Scales minority loss gradients inversely with class frequencies (~3.23× higher penalty for false negatives).
-    </p>
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);margin-bottom:12px;font-size:0.75rem;">
-      <div style="color:var(--on-surface);font-weight:600;margin-bottom:4px;">Characteristics:</div>
-      <div style="color:var(--secondary);">• Zero synthetic data injection</div>
-      <div style="color:var(--secondary);">• Strongest Recall boost on SVM & LR (up to 80.6%)</div>
-      <div style="color:var(--secondary);">• No change to training geometry</div>
+    <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">
+      Penalizes minority errors without adding rows.
     </div>
   </div>
-  <div style="background:rgba(0,74,198,0.06);border:1px solid rgba(0,74,198,0.15);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.72rem;color:var(--primary);">
-    <strong>Key Strength:</strong> Shifts the decision boundary without generating artificial samples, yielding the highest buyer sensitivity.
+</div>""", unsafe_allow_html=True)
+
+        # Conceptual Visual 2: Amplified minority loss penalty shifts boundary
+        df_c2 = pd.DataFrame([
+            {"x": 1.2, "y": 2.0, "Class": "Majority", "size": 65},
+            {"x": 1.8, "y": 3.8, "Class": "Majority", "size": 65},
+            {"x": 2.2, "y": 1.5, "Class": "Majority", "size": 65},
+            {"x": 2.8, "y": 4.2, "Class": "Majority", "size": 65},
+            {"x": 3.2, "y": 2.6, "Class": "Majority", "size": 65},
+            {"x": 3.8, "y": 4.6, "Class": "Majority", "size": 65},
+            {"x": 4.2, "y": 1.8, "Class": "Majority", "size": 65},
+            {"x": 4.9, "y": 3.6, "Class": "Majority", "size": 65},
+            {"x": 5.4, "y": 2.2, "Class": "Majority", "size": 65},
+            {"x": 5.8, "y": 4.0, "Class": "Majority", "size": 65},
+            {"x": 8.0, "y": 3.2, "Class": "Minority (Weighted)", "size": 260},
+            {"x": 8.6, "y": 4.1, "Class": "Minority (Weighted)", "size": 260},
+        ])
+        c2_pts = alt.Chart(df_c2).mark_circle().encode(
+            x=alt.X("x:Q", scale=alt.Scale(domain=[0, 10]), axis=None),
+            y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 6]), axis=None),
+            color=alt.Color("Class:N", scale=alt.Scale(domain=["Majority", "Minority (Weighted)"], range=["#94a3b8", "#2563eb"]), legend=None),
+            size=alt.Size("size:Q", legend=None),
+            tooltip=["Class:N"]
+        )
+        df_l2 = pd.DataFrame({"x": [4.9, 4.9], "y": [0, 6]})
+        c2_line = alt.Chart(df_l2).mark_line(color="#2563eb", strokeDash=[4, 4]).encode(x="x:Q", y="y:Q")
+        chart2 = (c2_pts + c2_line).properties(height=110, title=alt.TitleParams("Loss Scaling: w1 ≈ 3.23x (0 Synthetic Rows Added)", fontSize=10, color="#565e74"))
+        st.altair_chart(chart2, use_container_width=True)
+
+        st.markdown(f"""<div style="background:var(--surface-low);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;">
+  <div style="font-size:0.7rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;text-transform:uppercase;">Empirical Averages (16 Trials):</div>
+  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:4px;text-align:center;">
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Recall</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--primary);">{cw_rec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Precision</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--on-surface);">{cw_prec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">F1-Score</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--primary);">{cw_f1:.4f}</strong>
+    </div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--secondary);margin-top:8px;line-height:1.4;">
+    • <strong>Weight Multiplier:</strong> w₁ = N / (2 · N₁) ≈ 3.23 (5.5× error penalty)<br>
+    • <strong>Synthetic Rows:</strong> None (operates purely in loss space)
   </div>
 </div>
-""", unsafe_allow_html=True)
+<div style="font-size:0.72rem;color:var(--primary);background:rgba(0,74,198,0.06);border:1px solid rgba(0,74,198,0.15);padding:8px 10px;border-radius:var(--radius-sm);">
+  🎯 <strong>Peak Margin Sensitivity:</strong> Strongest sensitivity for SVM (Recall: 80.6%) &amp; Logistic Regression (Recall: 74.1%).
+</div>""", unsafe_allow_html=True)
 
+    # ── PANEL 3: SMOTE RESAMPLING ────────────────────────────────────────────
     with strat_col3:
-        st.markdown("""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--tertiary);">
+        st.markdown("""<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-top:3px solid var(--tertiary);margin-bottom:0;padding:16px 18px;">
   <div>
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span class="viva-pill" style="background:rgba(0,98,66,0.1);color:var(--tertiary) !important;">STRATEGY 03 · CHAMPION</span>
-      <span style="font-size:0.7rem;color:var(--tertiary);font-weight:700;">Generative Over-sampling</span>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span class="viva-pill" style="background:rgba(0,98,66,0.1);color:var(--tertiary)!important;">STRATEGY 03</span>
+      <span style="font-size:0.68rem;color:var(--tertiary);font-weight:700;">Synthetic Synthesis</span>
     </div>
-    <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
+    <div style="font-family:var(--font-head);font-size:1.02rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">
       SMOTE Resampling
     </div>
-    <p style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:12px;">
-      Synthetic Minority Over-sampling Technique. Synthesizes artificial minority vectors in continuous feature space via k-NN interpolation inside training folds.
-    </p>
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);margin-bottom:12px;font-size:0.75rem;">
-      <div style="color:var(--on-surface);font-weight:600;margin-bottom:4px;">Characteristics:</div>
-      <div style="color:var(--secondary);">• Applied strictly to training folds</div>
-      <div style="color:var(--secondary);">• Highest balanced F1-Score (0.6641)</div>
-      <div style="color:var(--secondary);">• Balances Recall (68.3%) & Precision (64.6%)</div>
+    <div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">
+      Interpolates synthetic vectors in feature space.
     </div>
   </div>
-  <div style="background:rgba(0,98,66,0.06);border:1px solid rgba(0,98,66,0.18);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.72rem;color:var(--tertiary);">
-    <strong>Champion Balance:</strong> Achieves optimal harmonic trade-off, minimizing costly false alarms while capturing 68.3% of buyers.
+</div>""", unsafe_allow_html=True)
+
+        # Conceptual Visual 3: k-NN synthetic interpolation between minority neighbors
+        df_c3_pts = pd.DataFrame([
+            {"x": 6.3, "y": 1.8, "Type": "Real Minority"},
+            {"x": 8.7, "y": 4.5, "Type": "Real Minority"},
+            {"x": 7.0, "y": 5.4, "Type": "Real Minority"},
+            {"x": 7.4, "y": 3.1, "Type": "Synthetic SMOTE"},
+            {"x": 6.6, "y": 3.6, "Type": "Synthetic SMOTE"},
+            {"x": 7.8, "y": 5.0, "Type": "Synthetic SMOTE"},
+        ])
+        lines_c3 = pd.DataFrame([
+            {"x": 6.3, "y": 1.8, "g": 1}, {"x": 8.7, "y": 4.5, "g": 1},
+            {"x": 6.3, "y": 1.8, "g": 2}, {"x": 7.0, "y": 5.4, "g": 2},
+            {"x": 8.7, "y": 4.5, "g": 3}, {"x": 7.0, "y": 5.4, "g": 3},
+        ])
+        c3_lines = alt.Chart(lines_c3).mark_line(color="#cbd5e1", strokeDash=[2, 2]).encode(x="x:Q", y="y:Q", detail="g:N")
+        c3_pts = alt.Chart(df_c3_pts).mark_circle(size=95).encode(
+            x=alt.X("x:Q", scale=alt.Scale(domain=[5, 10]), axis=None),
+            y=alt.Y("y:Q", scale=alt.Scale(domain=[0, 7]), axis=None),
+            color=alt.Color("Type:N", scale=alt.Scale(domain=["Real Minority", "Synthetic SMOTE"], range=["#004ac6", "#006242"]), legend=None),
+            tooltip=["Type:N"]
+        )
+        chart3 = (c3_lines + c3_pts).properties(height=110, title=alt.TitleParams("k-NN Synthetic Vectors (Conceptual Illustration)", fontSize=10, color="#565e74"))
+        st.altair_chart(chart3, use_container_width=True)
+
+        st.markdown(f"""<div style="background:var(--surface-low);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:10px;">
+  <div style="font-size:0.7rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;text-transform:uppercase;">Empirical Averages (16 Trials):</div>
+  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:4px;text-align:center;">
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Recall</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--tertiary);">{smote_rec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">Precision</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--on-surface);">{smote_prec:.1f}%</strong>
+    </div>
+    <div style="background:var(--surface-bright);padding:5px;border-radius:4px;">
+      <span style="font-size:0.6rem;color:var(--secondary);display:block;">F1-Score</span>
+      <strong style="font-family:var(--font-head);font-size:0.88rem;color:var(--tertiary);">{smote_f1:.4f}</strong>
+    </div>
+  </div>
+  <div style="font-size:0.72rem;color:var(--secondary);margin-top:8px;line-height:1.4;">
+    • <strong>Interpolation:</strong> x_new = x_i + λ · (x_zi − x_i) strictly in CV training folds<br>
+    • <strong>Generative Space:</strong> Continuous feature interpolation
   </div>
 </div>
-""", unsafe_allow_html=True)
+<div style="font-size:0.72rem;color:var(--tertiary);background:rgba(0,98,66,0.06);border:1px solid rgba(0,98,66,0.18);padding:8px 10px;border-radius:var(--radius-sm);">
+  🏆 <strong>Champion Tree Balance:</strong> Produces project-highest F1 = 0.6641 on Random Forest (68.3% Recall, 64.6% Precision).
+</div>""", unsafe_allow_html=True)
 
-    st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # ── UNDER THE VISUALS: CONCISE EMPIRICAL BENCHMARK & ALGORITHM NUANCE ────
+    with st.container(border=True):
+        st.markdown('<div style="font-family:var(--font-head);font-size:0.92rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">📊 Cross-Strategy Macro Benchmark &amp; Inductive Bias Response</div>', unsafe_allow_html=True)
+
+        cmp_c1, cmp_c2 = st.columns([1.1, 1.2], gap="large")
+
+        with cmp_c1:
+            # Formatted compact comparison table across all 48 experiments
+            summary_table_data = [
+                {"Strategy": "Baseline (None)", "Mean Recall": f"{base_rec:.1f}%", "Mean Prec": f"{base_prec:.1f}%", "Mean F1": f"{base_f1:.4f}", "Mean AUC": f"{base_auc:.4f}", "Best Fitted Model": "High Precision Only"},
+                {"Strategy": "Class Weighting", "Mean Recall": f"{cw_rec:.1f}%", "Mean Prec": f"{cw_prec:.1f}%", "Mean F1": f"{cw_f1:.4f}", "Mean AUC": f"{cw_auc:.4f}", "Best Fitted Model": "SVM & Logistic Reg."},
+                {"Strategy": "SMOTE Resampling", "Mean Recall": f"{smote_rec:.1f}%", "Mean Prec": f"{smote_prec:.1f}%", "Mean F1": f"{smote_f1:.4f}", "Mean AUC": f"{smote_auc:.4f}", "Best Fitted Model": "Random Forest (Champ)"},
+            ]
+            st.dataframe(pd.DataFrame(summary_table_data), use_container_width=True, hide_index=True)
+
+        with cmp_c2:
+            st.markdown("""<div style="font-size:0.77rem;color:var(--secondary);line-height:1.45;">
+  <strong>Algorithm-Specific Inductive Bias Response:</strong> Resampling remedies do not behave identically across classifiers:
+  <ul style="margin:4px 0 0 16px;padding:0;">
+    <li><strong>Random Forest:</strong> Responds best to <strong>SMOTE</strong> (F1 = 0.6543 vs 0.6063 for class weight), because synthetic points enrich localized leaf purity.</li>
+    <li><strong>SVM (Support Vector Machine):</strong> Responds best to <strong>Class Weighting</strong> (Recall = 76.51%, peaking at 80.63%), because loss scaling shifts the margin hyperplane directly without geometric distortion.</li>
+    <li><strong>Logistic Regression:</strong> Sees a massive +38.2% recall jump under Class Weighting (from 35.86% to 74.08%), though with a precision trade-off.</li>
+  </ul>
+</div>""", unsafe_allow_html=True)
+
+    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 
     # ─────────────────────────────────────────────────────────────────────────
     # SECTION C: Interactive Performance Comparison Across Strategies
     # ─────────────────────────────────────────────────────────────────────────
-    st.markdown('<div class="section-heading"><span>⚙️ Section C: Interactive Model & Feature Configuration Explorer</span></div>', unsafe_allow_html=True)
-    st.markdown("""
-<div style="font-size:0.82rem;color:var(--secondary);margin-bottom:12px;">
-  Select any model architecture and feature selection method to inspect how the 3 imbalance strategies perform on the held-out test set (2,466 sessions).
-</div>
-""", unsafe_allow_html=True)
+    st.markdown('<div class="section-heading"><span>⚙️ Section C: Interactive Model &amp; Feature Configuration Explorer</span></div>', unsafe_allow_html=True)
+    st.caption("Select any classifier and feature-selection method below. All metrics are computed on the identical held-out test split (2,466 sessions \u2014 382 actual buyers, 2,084 non-buyers).")
 
     ctrl_c1, ctrl_c2 = st.columns(2)
     with ctrl_c1:
@@ -2307,7 +2601,7 @@ def render_class_imbalance() -> None:
         )
         sel_feat_code = feat_name_map[sel_feat_label]
 
-    # Filter experiment results for selected model and feature configuration
+    # ── Filter experiment results for this configuration ────────────────────
     sub = df[(df["model"] == sel_model_code) & (df["feature_configuration"] == sel_feat_code)].copy()
     strat_order = ["none", "class_weight", "smote"]
     sub["strat_order"] = sub["imbalance_strategy"].map(lambda s: strat_order.index(s) if s in strat_order else 99)
@@ -2315,390 +2609,789 @@ def render_class_imbalance() -> None:
 
     strat_display_map = {
         "none": ("None (Baseline)", "Unweighted standard loss", "var(--secondary)", "#64748b"),
-        "class_weight": ("Class Weighting", "Balanced cost penalty", "var(--primary)", "#004ac6"),
+        "class_weight": ("Class Weighting", "Balanced cost penalty", "var(--primary)", "#2563eb"),
         "smote": ("SMOTE Resampling", "Synthetic oversampling", "var(--tertiary)", "#006242"),
     }
+    _strat_labels = {"none": "Baseline", "class_weight": "Class Weighting", "smote": "SMOTE"}
+    _strat_colors = {"none": "#64748b", "class_weight": "#2563eb", "smote": "#006242"}
 
-    # Render dynamic strategy cards for selected configuration
-    card_cols = st.columns(len(sub), gap="medium")
-    for i, (_, row) in enumerate(sub.iterrows()):
-        st_code = row["imbalance_strategy"]
-        disp_title, disp_sub, disp_color, hex_color = strat_display_map.get(st_code, (st_code.title(), "", "var(--primary)", "#004ac6"))
-        with card_cols[i]:
-            st.markdown(f"""
-<div class="result-card" style="height:100%;padding:16px;border-top:3px solid {disp_color};">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-    <div>
-      <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">{disp_title}</div>
-      <div style="font-size:0.68rem;color:var(--secondary);">{disp_sub}</div>
-    </div>
-    <span style="font-size:0.65rem;font-weight:700;padding:2px 6px;border-radius:4px;background:var(--surface-container);color:var(--secondary);">
-      {row['test_rows']} Test Rows
-    </span>
-  </div>
+    if sub.empty:
+        st.warning("No experiment results available for this model + feature combination.")
+    else:
+        # ── Configuration banner ────────────────────────────────────────────
+        st.markdown(f'<div style="background:#f1f5f9;border-radius:8px;padding:10px 16px;margin:8px 0 14px 0;border-left:4px solid #2563eb;"><span style="font-size:0.82rem;color:#334155;"><strong>Active Configuration:</strong> {sel_model_label} + {sel_feat_label}</span><span style="font-size:0.75rem;color:#64748b;float:right;">Test N = 2,466 &nbsp;|&nbsp; 382 Buyers &nbsp;|&nbsp; 2,084 Non-buyers</span></div>', unsafe_allow_html=True)
 
-  <div style="display:flex;flex-direction:column;gap:8px;margin:12px 0;">
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:2px;">
-        <span style="color:var(--secondary);font-weight:600;">Recall (Sensitivity)</span>
-        <span style="font-family:var(--font-head);font-weight:700;color:{disp_color};">{row['recall']*100:.1f}%</span>
-      </div>
-      <div style="width:100%;height:6px;background:var(--surface-container);border-radius:999px;overflow:hidden;">
-        <div style="width:{min(100, row['recall']*100):.1f}%;height:100%;background:{disp_color};border-radius:999px;"></div>
-      </div>
-    </div>
+        # ── 1. KPI metric cards (one row per strategy) ──────────────────────
+        for _, row in sub.iterrows():
+            strat_code = row["imbalance_strategy"]
+            label = _strat_labels.get(strat_code, strat_code)
+            k1, k2, k3, k4, k5 = st.columns(5)
+            with k1:
+                st.metric(f"{label} \u2014 Precision", f"{row['precision']*100:.1f}%")
+            with k2:
+                st.metric(f"{label} \u2014 Recall", f"{row['recall']*100:.1f}%")
+            with k3:
+                st.metric(f"{label} \u2014 F1-Score", f"{row['f1']:.4f}")
+            with k4:
+                st.metric(f"{label} \u2014 ROC-AUC", f"{row['roc_auc']:.4f}")
+            with k5:
+                st.metric(f"{label} \u2014 Accuracy", f"{row['accuracy']*100:.1f}%")
 
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:2px;">
-        <span style="color:var(--secondary);font-weight:600;">Precision</span>
-        <span style="font-family:var(--font-head);font-weight:700;color:var(--on-surface);">{row['precision']*100:.1f}%</span>
-      </div>
-      <div style="width:100%;height:6px;background:var(--surface-container);border-radius:999px;overflow:hidden;">
-        <div style="width:{min(100, row['precision']*100):.1f}%;height:100%;background:var(--secondary);border-radius:999px;"></div>
-      </div>
-    </div>
+        st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
 
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:2px;">
-        <span style="color:var(--secondary);font-weight:600;">F1-Score</span>
-        <span style="font-family:var(--font-head);font-weight:700;color:{disp_color};">{row['f1']:.4f}</span>
-      </div>
-      <div style="width:100%;height:6px;background:var(--surface-container);border-radius:999px;overflow:hidden;">
-        <div style="width:{min(100, row['f1']*100):.1f}%;height:100%;background:{disp_color};border-radius:999px;"></div>
-      </div>
-    </div>
+        # ── 2. Grouped bar chart: 3 strategies side-by-side (Altair) ────────
+        plot_data = []
+        for _, row in sub.iterrows():
+            strat_code = row["imbalance_strategy"]
+            label = _strat_labels.get(strat_code, strat_code)
+            for metric_name, metric_val in [
+                ("Precision", row["precision"] * 100),
+                ("Recall", row["recall"] * 100),
+                ("F1-Score", row["f1"] * 100),
+                ("ROC-AUC", row["roc_auc"] * 100),
+            ]:
+                plot_data.append({
+                    "Strategy": label,
+                    "Metric": metric_name,
+                    "Score (%)": metric_val,
+                    "Display": f"{metric_val:.1f}%",
+                })
 
-    <div>
-      <div style="display:flex;justify-content:space-between;font-size:0.7rem;margin-bottom:2px;">
-        <span style="color:var(--secondary);font-weight:600;">ROC-AUC</span>
-        <span style="font-family:var(--font-head);font-weight:700;color:var(--on-surface);">{row['roc_auc']:.4f}</span>
-      </div>
-      <div style="width:100%;height:6px;background:var(--surface-container);border-radius:999px;overflow:hidden;">
-        <div style="width:{min(100, row['roc_auc']*100):.1f}%;height:100%;background:var(--outline);border-radius:999px;"></div>
-      </div>
-    </div>
-  </div>
+        df_bar = pd.DataFrame(plot_data)
+        bar_chart = alt.Chart(df_bar).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+            x=alt.X("Metric:N", title=None, axis=alt.Axis(labelFontSize=11, labelFontWeight="bold")),
+            y=alt.Y("Score (%):Q", title="Score (%)", scale=alt.Scale(domain=[0, 105]), axis=alt.Axis(format=".0f", grid=True)),
+            color=alt.Color(
+                "Strategy:N",
+                scale=alt.Scale(
+                    domain=["Baseline", "Class Weighting", "SMOTE"],
+                    range=["#64748b", "#2563eb", "#006242"]
+                ),
+                legend=alt.Legend(orient="top", title=None, labelFontSize=11)
+            ),
+            xOffset="Strategy:N",
+            tooltip=[
+                alt.Tooltip("Strategy:N", title="Strategy"),
+                alt.Tooltip("Metric:N", title="Metric"),
+                alt.Tooltip("Score (%):Q", format=".2f", title="Score (%)"),
+                alt.Tooltip("Display:N", title="Value"),
+            ]
+        ).properties(
+            height=320,
+            title=alt.TitleParams(
+                text=f"Strategy Comparison: {sel_model_label} + {sel_feat_label}",
+                fontSize=14,
+                anchor="start"
+            )
+        )
+        st.altair_chart(bar_chart, use_container_width=True)
 
-  <div style="background:var(--surface-low);padding:8px 10px;border-radius:var(--radius-sm);font-size:0.68rem;color:var(--secondary);">
-    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-      <span>True Positives (Buyers):</span>
-      <strong style="color:var(--on-surface);">{int(row['tp'])} / 382</strong>
-    </div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
-      <span>False Alarms (FP):</span>
-      <strong style="color:var(--error);">{int(row['fp'])}</strong>
-    </div>
-    <div style="display:flex;justify-content:space-between;">
-      <span>Missed Buyers (FN):</span>
-      <strong style="color:var(--error);">{int(row['fn'])}</strong>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+        # ── 3. Confusion matrices (Matplotlib heatmaps, one per strategy) ───
+        st.markdown("**Confusion Matrices \u2014 Held-Out Test Set**")
+        import matplotlib.pyplot as plt
+        import matplotlib.colors as mcolors
+        import numpy as np
 
-    # Summary empirical table for this slice
-    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
-    table_rows_html = ""
-    for _, r in sub.iterrows():
-        st_name = strat_display_map.get(r['imbalance_strategy'], (r['imbalance_strategy'],))[0]
-        table_rows_html += f"""
-<tr style="border-bottom:1px solid var(--surface-container);font-size:0.8rem;">
-  <td style="padding:10px 12px;font-weight:600;color:var(--on-surface);">{st_name}</td>
-  <td style="padding:10px 12px;font-family:var(--font-head);font-weight:700;color:var(--primary);">{r['f1']:.4f}</td>
-  <td style="padding:10px 12px;font-family:var(--font-head);font-weight:700;color:var(--tertiary);">{r['recall']*100:.2f}%</td>
-  <td style="padding:10px 12px;font-family:var(--font-head);font-weight:600;">{r['precision']*100:.2f}%</td>
-  <td style="padding:10px 12px;font-family:var(--font-head);font-weight:600;">{r['roc_auc']:.4f}</td>
-  <td style="padding:10px 12px;color:var(--secondary);">{r['accuracy']*100:.2f}%</td>
-  <td style="padding:10px 12px;font-weight:600;color:var(--on-surface);">{int(r['tp'])}</td>
-  <td style="padding:10px 12px;color:var(--error);font-weight:600;">{int(r['fp'])}</td>
-  <td style="padding:10px 12px;color:var(--error);">{int(r['fn'])}</td>
-</tr>
-"""
+        cm_cols = st.columns(len(sub), gap="medium")
+        for i, (_, row) in enumerate(sub.iterrows()):
+            strat_code = row["imbalance_strategy"]
+            label = _strat_labels.get(strat_code, strat_code)
+            color_hex = _strat_colors.get(strat_code, "#2563eb")
+            tp, fp, fn, tn = int(row["tp"]), int(row["fp"]), int(row["fn"]), int(row["tn"])
+            total_pos = tp + fn
+            total_neg = tn + fp
 
-    st.markdown(f"""
-<div style="background:var(--surface-bright);border-radius:var(--radius-lg);padding:14px 18px;box-shadow:0 1px 6px rgba(0,0,0,0.05);overflow-x:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <span style="font-size:0.75rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:0.05em;">
-      Ablation Comparison Table · {sel_model_label} ({sel_feat_label})
-    </span>
-    <span style="font-size:0.68rem;color:var(--outline);font-weight:600;">Protocol: 80/20 Stratified Test Split (N=2,466)</span>
-  </div>
-  <table style="width:100%;border-collapse:collapse;text-align:left;">
-    <thead>
-      <tr style="border-bottom:2px solid var(--surface-container);font-size:0.7rem;color:var(--secondary);text-transform:uppercase;letter-spacing:0.05em;">
-        <th style="padding:8px 12px;">Imbalance Strategy</th>
-        <th style="padding:8px 12px;">F1-Score</th>
-        <th style="padding:8px 12px;">Recall</th>
-        <th style="padding:8px 12px;">Precision</th>
-        <th style="padding:8px 12px;">ROC-AUC</th>
-        <th style="padding:8px 12px;">Accuracy</th>
-        <th style="padding:8px 12px;">TP</th>
-        <th style="padding:8px 12px;">FP</th>
-        <th style="padding:8px 12px;">FN</th>
-      </tr>
-    </thead>
-    <tbody>
-      {table_rows_html}
-    </tbody>
-  </table>
-  <div style="margin-top:10px;font-size:0.72rem;color:var(--secondary);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-    <span>* Positive Class = <code>Revenue=True</code> (382 actual test buyers). Negative Class = <code>Revenue=False</code> (2,084 test non-buyers).</span>
-    <span>Source: <code>results/nayantara/full_experiment_results.csv</code></span>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+            cm = np.array([[tn, fp], [fn, tp]])
+            labels_grid = np.array([
+                [f"TN\n{tn:,}\n({tn/total_neg*100:.1f}%)" if total_neg else f"TN\n{tn:,}",
+                 f"FP\n{fp:,}\n({fp/total_neg*100:.1f}%)" if total_neg else f"FP\n{fp:,}"],
+                [f"FN\n{fn:,}\n({fn/total_pos*100:.1f}%)" if total_pos else f"FN\n{fn:,}",
+                 f"TP\n{tp:,}\n({tp/total_pos*100:.1f}%)" if total_pos else f"TP\n{tp:,}"],
+            ])
 
-    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+            with cm_cols[i]:
+                fig_cm, ax_cm = plt.subplots(figsize=(3.2, 2.6))
+                light_color = mcolors.to_rgba(color_hex, alpha=0.15)
+                full_color = mcolors.to_rgba(color_hex, alpha=0.55)
+                cmap = mcolors.LinearSegmentedColormap.from_list("cm", [light_color, full_color])
+                ax_cm.imshow(cm, cmap=cmap, aspect="auto")
 
+                for row_idx in range(2):
+                    for col_idx in range(2):
+                        ax_cm.text(col_idx, row_idx, labels_grid[row_idx, col_idx],
+                                   ha="center", va="center", fontsize=9, fontweight="bold",
+                                   color="#1e293b")
+
+                ax_cm.set_xticks([0, 1])
+                ax_cm.set_xticklabels(["Pred: No", "Pred: Buy"], fontsize=8)
+                ax_cm.set_yticks([0, 1])
+                ax_cm.set_yticklabels(["Actual: No", "Actual: Buy"], fontsize=8)
+                ax_cm.set_title(label, fontsize=11, fontweight="bold", color=color_hex, pad=8)
+                fig_cm.tight_layout()
+                st.pyplot(fig_cm)
+                plt.close(fig_cm)
+
+        # ── 4. Compact comparison table ─────────────────────────────────────
+        table_rows = []
+        for _, r in sub.iterrows():
+            st_name = _strat_labels.get(r["imbalance_strategy"], r["imbalance_strategy"])
+            table_rows.append({
+                "Strategy": st_name,
+                "F1-Score": f"{r['f1']:.4f}",
+                "Recall": f"{r['recall']*100:.2f}%",
+                "Precision": f"{r['precision']*100:.2f}%",
+                "ROC-AUC": f"{r['roc_auc']:.4f}",
+                "Accuracy": f"{r['accuracy']*100:.2f}%",
+                "TP": int(r["tp"]),
+                "FP": int(r["fp"]),
+                "FN": int(r["fn"]),
+                "TN": int(r["tn"]),
+            })
+        st.dataframe(pd.DataFrame(table_rows), use_container_width=True, hide_index=True)
+        st.caption("Protocol: 80/20 Stratified Holdout Test Split (N = 2,466 sessions; 382 actual buyers, 2,084 non-buyers). Source: results/nayantara/full_experiment_results.csv")
+
+        # ── 5. Dynamic trade-off insight ────────────────────────────────────
+        best_row = sub.loc[sub["f1"].idxmax()]
+        worst_row = sub.loc[sub["f1"].idxmin()]
+        best_strat = _strat_labels.get(best_row["imbalance_strategy"], best_row["imbalance_strategy"])
+        worst_strat = _strat_labels.get(worst_row["imbalance_strategy"], worst_row["imbalance_strategy"])
+        f1_gap = (best_row["f1"] - worst_row["f1"]) * 100
+        recall_best = best_row["recall"] * 100
+        prec_best = best_row["precision"] * 100
+
+        if f1_gap > 1:
+            st.info(
+                f"**Trade-off Insight for {sel_model_label}:** "
+                f"**{best_strat}** achieves the highest F1 ({best_row['f1']:.4f}) for this configuration, "
+                f"with {recall_best:.1f}% recall and {prec_best:.1f}% precision. "
+                f"This is {f1_gap:.1f} percentage points above **{worst_strat}** ({worst_row['f1']:.4f}). "
+                f"The improvement comes from better minority-class detection, though at a different precision trade-off."
+            )
+        else:
+            st.info(
+                f"**Trade-off Insight for {sel_model_label}:** "
+                f"All three strategies produce similar F1-scores for this feature configuration "
+                f"(range: {worst_row['f1']:.4f} \u2013 {best_row['f1']:.4f}), "
+                f"suggesting this classifier's inductive bias is less sensitive to resampling strategy with the selected features."
+            )
+
+    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
     # ─────────────────────────────────────────────────────────────────────────
-    # SECTION D: F1 vs Recall Trade-Off (Verified Champions)
+    # SECTION D: F1 vs Recall Trade-Off Analysis (Verified Champions)
     # ─────────────────────────────────────────────────────────────────────────
     st.markdown('<div class="section-heading"><span>⚖️ Section D: F1 vs Recall Trade-Off Analysis</span></div>', unsafe_allow_html=True)
+    st.caption("Empirical head-to-head comparison between the project's two verified champions on the held-out test split (N = 2,466 sessions; 382 actual buyers, 2,084 non-buyers).")
 
-    # Verified Champion identification
+    # ── 1. DYNAMIC CHAMPION IDENTIFICATION (Strictly from Verified Results) ──
     best_f1_idx = df["f1"].idxmax()
     best_f1_row = df.loc[best_f1_idx]
 
     best_rec_idx = df["recall"].idxmax()
     best_rec_row = df.loc[best_rec_idx]
 
-    top_d1, top_d2 = st.columns(2, gap="medium")
+    name_cleaner = {
+        "random_forest": "Random Forest",
+        "svm": "Support Vector Machine (SVM)",
+        "logistic_regression": "Logistic Regression",
+        "decision_tree": "Decision Tree",
+        "tree_importance": "Tree Importance (Top 25)",
+        "rfe": "RFE (Top 40)",
+        "correlation": "Correlation (75 Feats)",
+        "all": "All Features (75 Feats)",
+        "smote": "SMOTE Resampling",
+        "class_weight": "Class Weighting",
+        "none": "Baseline (None)"
+    }
 
-    with top_d1:
-        st.markdown(f"""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-left:4px solid var(--tertiary);">
-  <div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-          <span class="viva-pill" style="background:var(--tertiary);color:#ffffff !important;font-size:0.6rem;">SELECTED OVERALL CHAMPION</span>
-          <span style="font-size:0.72rem;font-weight:700;color:var(--tertiary);">★ Best F1-Score</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);">
-          Random Forest + Tree Importance + SMOTE
-        </div>
-        <div style="font-size:0.75rem;color:var(--secondary);margin-top:2px;">
-          Optimized for minimal false alarms while recovering 68.3% of buying visitors.
-        </div>
-      </div>
-      <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,98,66,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🏆</div>
-    </div>
+    f1_m_name = name_cleaner.get(best_f1_row["model"], best_f1_row["model"])
+    f1_feat_name = name_cleaner.get(best_f1_row["feature_configuration"], best_f1_row["feature_configuration"])
+    f1_strat_name = name_cleaner.get(best_f1_row["imbalance_strategy"], best_f1_row["imbalance_strategy"])
 
-    <div style="background:var(--surface-low);padding:12px;border-radius:var(--radius-md);margin:12px 0;display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;text-align:center;">
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">F1-Score</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--primary);">{best_f1_row['f1']:.4f}</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">Recall</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--tertiary);">{best_f1_row['recall']*100:.1f}%</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">Precision</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);">{best_f1_row['precision']*100:.1f}%</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">ROC-AUC</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--outline);">{best_f1_row['roc_auc']:.4f}</div>
-      </div>
-    </div>
+    rec_m_name = name_cleaner.get(best_rec_row["model"], best_rec_row["model"])
+    rec_feat_name = name_cleaner.get(best_rec_row["feature_configuration"], best_rec_row["feature_configuration"])
+    rec_strat_name = name_cleaner.get(best_rec_row["imbalance_strategy"], best_rec_row["imbalance_strategy"])
 
-    <div style="font-size:0.75rem;color:var(--secondary);line-height:1.45;margin-bottom:12px;">
-      • <strong>Confusion Matrix:</strong> TP = {int(best_f1_row['tp'])}, FP = {int(best_f1_row['fp'])}, FN = {int(best_f1_row['fn'])}, TN = {int(best_f1_row['tn'])}.<br>
-      • <strong>Commercial Strength:</strong> With only 143 false alarms, promotional discounts are not wasted on non-buyers.
-    </div>
-  </div>
+    # ── 1. SIDE-BY-SIDE CHAMPION KPI SUMMARY CARDS ───────────────────────────
+    champ_c1, champ_c2 = st.columns(2, gap="large")
 
-  <div style="font-size:0.72rem;background:rgba(0,98,66,0.06);border:1px solid rgba(0,98,66,0.18);padding:8px 10px;border-radius:var(--radius-sm);color:var(--tertiary);">
-    <strong>Decision Objective:</strong> Ideal when customer retention offers (e.g. 20% discount vouchers) have non-trivial marginal costs.
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    with champ_c1:
+        with st.container(border=True):
+            st.markdown(
+                f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+                f'<span style="background:rgba(0,98,66,0.12);color:#006242;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:4px;">🏆 BEST F1-SCORE CHAMPION</span>'
+                f'<span style="font-size:0.75rem;color:#006242;font-weight:700;">Balanced Detection</span>'
+                f'</div>'
+                f'<div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                f'{f1_m_name}'
+                f'</div>'
+                f'<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:10px;">'
+                f'Pipeline: {f1_feat_name} + {f1_strat_name}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            k_f1, k_f2, k_f3, k_f4 = st.columns(4)
+            with k_f1:
+                st.metric("F1-Score", f"{best_f1_row['f1']:.4f}")
+            with k_f2:
+                st.metric("Recall", f"{best_f1_row['recall']*100:.1f}%")
+            with k_f3:
+                st.metric("Precision", f"{best_f1_row['precision']*100:.1f}%")
+            with k_f4:
+                st.metric("ROC-AUC", f"{best_f1_row['roc_auc']:.4f}")
 
-    with top_d2:
-        st.markdown(f"""
-<div class="result-card" style="height:100%;display:flex;flex-direction:column;justify-content:space-between;border-left:4px solid #b45309;">
-  <div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-          <span class="viva-pill" style="background:#b45309;color:#ffffff !important;font-size:0.6rem;">MAXIMUM INTENT DETECTION</span>
-          <span style="font-size:0.72rem;font-weight:700;color:#b45309;">★ Best Recall</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);">
-          SVM + RFE (40 Features) + Class Weight
-        </div>
-        <div style="font-size:0.75rem;color:var(--secondary);margin-top:2px;">
-          Optimized to capture the absolute maximum number of converting shoppers.
-        </div>
-      </div>
-      <div style="width:40px;height:40px;border-radius:10px;background:rgba(180,83,9,0.1);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🎯</div>
-    </div>
+    with champ_c2:
+        with st.container(border=True):
+            st.markdown(
+                f'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+                f'<span style="background:rgba(180,83,9,0.12);color:#b45309;font-size:0.68rem;font-weight:700;padding:3px 8px;border-radius:4px;">🎯 BEST RECALL CHAMPION</span>'
+                f'<span style="font-size:0.75rem;color:#b45309;font-weight:700;">Maximum Recovery</span>'
+                f'</div>'
+                f'<div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                f'{rec_m_name}'
+                f'</div>'
+                f'<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:10px;">'
+                f'Pipeline: {rec_feat_name} + {rec_strat_name}'
+                f'</div>',
+                unsafe_allow_html=True
+            )
+            k_r1, k_r2, k_r3, k_r4 = st.columns(4)
+            with k_r1:
+                st.metric("Recall", f"{best_rec_row['recall']*100:.1f}%")
+            with k_r2:
+                st.metric("F1-Score", f"{best_rec_row['f1']:.4f}")
+            with k_r3:
+                st.metric("Precision", f"{best_rec_row['precision']*100:.1f}%")
+            with k_r4:
+                st.metric("ROC-AUC", f"{best_rec_row['roc_auc']:.4f}")
 
-    <div style="background:var(--surface-low);padding:12px;border-radius:var(--radius-md);margin:12px 0;display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;text-align:center;">
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">Recall</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:#b45309;">{best_rec_row['recall']*100:.1f}%</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">F1-Score</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--primary);">{best_rec_row['f1']:.4f}</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">Precision</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--on-surface);">{best_rec_row['precision']*100:.1f}%</div>
-      </div>
-      <div>
-        <div style="font-size:0.62rem;font-weight:700;color:var(--secondary);text-transform:uppercase;">ROC-AUC</div>
-        <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--outline);">{best_rec_row['roc_auc']:.4f}</div>
-      </div>
-    </div>
+    st.markdown("<div style='height:10px;'></div>", unsafe_allow_html=True)
 
-    <div style="font-size:0.75rem;color:var(--secondary);line-height:1.45;margin-bottom:12px;">
-      • <strong>Confusion Matrix:</strong> TP = {int(best_rec_row['tp'])}, FP = {int(best_rec_row['fp'])}, FN = {int(best_rec_row['fn'])}, TN = {int(best_rec_row['tn'])}.<br>
-      • <strong>Trade-Off Dilemma:</strong> Captures 47 more buyers (+18.0%), but generates 146 additional false alarms (+102.1%).
-    </div>
-  </div>
+    # ── 2. GROUPED BAR CHART: DIRECT METRIC COMPARISON ───────────────────────
+    comp_metrics = ["Precision", "Recall", "F1-Score", "ROC-AUC", "Accuracy"]
+    bar_rows = []
+    for m_label, v_f1, v_rec in [
+        ("Precision", best_f1_row["precision"] * 100, best_rec_row["precision"] * 100),
+        ("Recall", best_f1_row["recall"] * 100, best_rec_row["recall"] * 100),
+        ("F1-Score", best_f1_row["f1"] * 100, best_rec_row["f1"] * 100),
+        ("ROC-AUC", best_f1_row["roc_auc"] * 100, best_rec_row["roc_auc"] * 100),
+        ("Accuracy", best_f1_row["accuracy"] * 100, best_rec_row["accuracy"] * 100),
+    ]:
+        bar_rows.append({
+            "Configuration": f"Best F1: {f1_m_name} + SMOTE",
+            "Metric": m_label,
+            "Score (%)": v_f1,
+            "Display": f"{v_f1:.1f}%",
+        })
+        bar_rows.append({
+            "Configuration": f"Best Recall: {rec_m_name} + Class Wt",
+            "Metric": m_label,
+            "Score (%)": v_rec,
+            "Display": f"{v_rec:.1f}%",
+        })
 
-  <div style="font-size:0.72rem;background:rgba(180,83,9,0.06);border:1px solid rgba(180,83,9,0.2);padding:8px 10px;border-radius:var(--radius-sm);color:#b45309;">
-    <strong>Decision Objective:</strong> Ideal when marketing intervention is costless (e.g. subtle automated reminders) and missing high-value buyers is unacceptable.
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    df_champ_bar = pd.DataFrame(bar_rows)
+    champ_chart = alt.Chart(df_champ_bar).mark_bar(cornerRadiusTopLeft=4, cornerRadiusTopRight=4).encode(
+        x=alt.X("Metric:N", title=None, axis=alt.Axis(labelFontSize=11, labelFontWeight="bold")),
+        y=alt.Y("Score (%):Q", title="Score (%)", scale=alt.Scale(domain=[0, 105]), axis=alt.Axis(format=".0f", grid=True)),
+        color=alt.Color(
+            "Configuration:N",
+            scale=alt.Scale(
+                domain=[f"Best F1: {f1_m_name} + SMOTE", f"Best Recall: {rec_m_name} + Class Wt"],
+                range=["#006242", "#b45309"]
+            ),
+            legend=alt.Legend(orient="top", title=None, labelFontSize=11)
+        ),
+        xOffset="Configuration:N",
+        tooltip=[
+            alt.Tooltip("Configuration:N", title="Pipeline"),
+            alt.Tooltip("Metric:N", title="Metric"),
+            alt.Tooltip("Score (%):Q", format=".2f", title="Score (%)"),
+            alt.Tooltip("Display:N", title="Value"),
+        ]
+    ).properties(
+        height=280,
+        title=alt.TitleParams(
+            text="Head-to-Head Metric Profile: Best F1 Champion vs Best Recall Champion",
+            fontSize=13,
+            anchor="start"
+        )
+    )
+    st.altair_chart(champ_chart, use_container_width=True)
 
-    # Operational Trade-off Deep Dive Callout
-    tp_diff = int(best_rec_row['tp'] - best_f1_row['tp'])
-    fp_diff = int(best_rec_row['fp'] - best_f1_row['fp'])
-    fp_pct_increase = (fp_diff / best_f1_row['fp']) * 100
+    # ── 3. CONFUSION MATRIX COMPARISON (Matplotlib Heatmaps) ──────────────────
+    st.markdown("**Empirical Confusion Matrix Comparison (Held-Out Test Set, N = 2,466)**")
+    import matplotlib.pyplot as plt
+    import matplotlib.colors as mcolors
+    import numpy as np
 
-    st.markdown(f"""
-<div style="background:var(--surface-bright);border-radius:var(--radius-lg);padding:16px 20px;box-shadow:0 1px 6px rgba(0,0,0,0.05);margin-top:12px;">
-  <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-    Business Decision Rule: Asymmetric Cost Function
-  </div>
-  <p style="font-size:0.8rem;color:var(--secondary);line-height:1.5;margin-bottom:10px;">
-    The difference between the two configurations illustrates the classical precision-recall trade-off:
-  </p>
-  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:12px;margin-bottom:10px;">
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);">
-      <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--secondary);">Additional Buyers Caught</div>
-      <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--tertiary);">+{tp_diff} Sessions (+18.0%)</div>
-      <div style="font-size:0.68rem;color:var(--secondary);">From 261 to 308 true positives</div>
-    </div>
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);">
-      <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--secondary);">False Alarms Incurred</div>
-      <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--error);">+{fp_diff} False Positives (+{fp_pct_increase:.1f}%)</div>
-      <div style="font-size:0.68rem;color:var(--secondary);">From 143 to 289 false alarms</div>
-    </div>
-    <div style="background:var(--surface-low);padding:10px;border-radius:var(--radius-sm);">
-      <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--secondary);">Exchange Ratio</div>
-      <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:var(--primary);">{fp_diff / tp_diff:.1f} : 1</div>
-      <div style="font-size:0.68rem;color:var(--secondary);">~3.1 false alarms per extra buyer</div>
-    </div>
-  </div>
-  <div style="font-size:0.75rem;color:var(--on-surface-var);line-height:1.5;">
-    • If each missed buyer costs $100 and a false alarm voucher costs $5, <strong>SVM + Class Weight</strong> wins (net benefit: +$4,700 - $730 = +$3,970).<br>
-    • If offering a free gift or live agent contact costs $40 per false alarm, <strong>Random Forest + SMOTE</strong> wins (net benefit: +$3,970 - $5,840 = -$1,870 loss for SVM).
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    cm_cols = st.columns(2, gap="large")
 
-    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
+    f1_tp, f1_fp, f1_fn, f1_tn = int(best_f1_row["tp"]), int(best_f1_row["fp"]), int(best_f1_row["fn"]), int(best_f1_row["tn"])
+    rec_tp, rec_fp, rec_fn, rec_tn = int(best_rec_row["tp"]), int(best_rec_row["fp"]), int(best_rec_row["fn"]), int(best_rec_row["tn"])
 
+    for idx, (label, color_hex, tp, fp, fn, tn) in enumerate([
+        (f"Best F1: {f1_m_name} + SMOTE", "#006242", f1_tp, f1_fp, f1_fn, f1_tn),
+        (f"Best Recall: {rec_m_name} + Class Wt", "#b45309", rec_tp, rec_fp, rec_fn, rec_tn),
+    ]):
+        tot_pos = tp + fn
+        tot_neg = tn + fp
+        cm_arr = np.array([[tn, fp], [fn, tp]])
+        labels_grid = np.array([
+            [f"TN\n{tn:,}\n({tn/tot_neg*100:.1f}% spec)", f"FP (False Alarms)\n{fp:,}\n({fp/tot_neg*100:.1f}% fpr)"],
+            [f"FN (Missed)\n{fn:,}\n({fn/tot_pos*100:.1f}% miss)", f"TP (Detected)\n{tp:,}\n({tp/tot_pos*100:.1f}% recall)"]
+        ])
+
+        with cm_cols[idx]:
+            fig_cm, ax_cm = plt.subplots(figsize=(4.0, 2.7))
+            light_c = mcolors.to_rgba(color_hex, alpha=0.12)
+            full_c = mcolors.to_rgba(color_hex, alpha=0.55)
+            cmap = mcolors.LinearSegmentedColormap.from_list("cm_champ", [light_c, full_c])
+            ax_cm.imshow(cm_arr, cmap=cmap, aspect="auto")
+
+            for r_i in range(2):
+                for c_i in range(2):
+                    ax_cm.text(c_i, r_i, labels_grid[r_i, c_i], ha="center", va="center", fontsize=9, fontweight="bold", color="#0f172a")
+
+            ax_cm.set_xticks([0, 1])
+            ax_cm.set_xticklabels(["Pred: No Purchase", "Pred: Purchase"], fontsize=8)
+            ax_cm.set_yticks([0, 1])
+            ax_cm.set_yticklabels(["Actual: No Purchase", "Actual: Purchase"], fontsize=8)
+            ax_cm.set_title(label, fontsize=10, fontweight="bold", color=color_hex, pad=8)
+            fig_cm.tight_layout()
+            st.pyplot(fig_cm)
+            plt.close(fig_cm)
+
+    st.markdown("<div style='height:12px;'></div>", unsafe_allow_html=True)
+
+    # ── 4. VISUAL TRADE-OFF SUMMARY (Calculated Dynamically from Data) ────────
+    tp_diff = int(best_rec_row["tp"] - best_f1_row["tp"])
+    fp_diff = int(best_rec_row["fp"] - best_f1_row["fp"])
+    fn_diff = int(best_f1_row["fn"] - best_rec_row["fn"])
+    exchange_ratio = (fp_diff / tp_diff) if tp_diff else 0
+    tp_pct_gain = (tp_diff / best_f1_row["tp"]) * 100 if best_f1_row["tp"] else 0
+    fp_pct_increase = (fp_diff / best_f1_row["fp"]) * 100 if best_f1_row["fp"] else 0
+
+    with st.container(border=True):
+        st.markdown(
+            '<div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">'
+            '🔄 Empirical Trade-Off Exchange Rate (Recall Champion vs F1 Champion)'
+            '</div>'
+            '<div style="font-size:0.78rem;color:var(--secondary);margin-bottom:12px;">'
+            'Measured difference in classification outcomes when migrating from Best-F1 to Best-Recall on the 2,466 test sessions:'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        tr_c1, tr_c2, tr_c3 = st.columns(3)
+        with tr_c1:
+            st.metric(
+                "Additional Buyers Captured (TP)",
+                f"+{tp_diff} Sessions",
+                delta=f"+{tp_pct_gain:.1f}% buyer recovery"
+            )
+        with tr_c2:
+            st.metric(
+                "Additional False Alarms (FP)",
+                f"+{fp_diff} False Positives",
+                delta=f"+{fp_pct_increase:.1f}% false alarms",
+                delta_color="inverse"
+            )
+        with tr_c3:
+            st.metric(
+                "Marginal Exchange Ratio",
+                f"{exchange_ratio:.1f} : 1",
+                help="Number of additional false alarms accepted per extra converting buyer captured"
+            )
+
+        st.info(
+            f"**Empirical Finding:** Switching from Random Forest + SMOTE to SVM + Class Weighting recovers **+{tp_diff} additional buyers** "
+            f"(reducing missed purchases from {best_f1_row['fn']} to {best_rec_row['fn']}), but incurs **+{fp_diff} additional false alarms** "
+            f"({best_f1_row['fp']} → {best_rec_row['fp']}). Every extra buyer discovered requires accepting **{exchange_ratio:.1f} additional false alarms**."
+        )
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # ── 5. BUSINESS IMPACT PANEL (Explicitly Labeled Hypothetical Simulation) ─
+    with st.container(border=True):
+        st.markdown(
+            '<div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);margin-bottom:4px;">'
+            '💼 Business Decision Framework: When to Prioritize Recall vs Precision'
+            '</div>'
+            '<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:10px;">'
+            '<em>Hypothetical Unit-Economics Model (Illustrative Simulation — Not Measured Experimental Findings)</em>'
+            '</div>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """<div style="font-size:0.78rem;color:var(--secondary);line-height:1.45;margin-bottom:10px;">
+In commercial deployment, the optimal champion depends entirely on the business's asymmetric cost structure:
+<ul>
+  <li><strong>When to deploy Best-F1 (Random Forest + SMOTE):</strong> When promotional incentives carry direct monetary costs (e.g., $15 discount voucher, high-touch sales outreach), or when customer annoyance from irrelevant marketing causes churn. The higher precision (64.6% vs 51.6%) saves 146 wasted promotions.</li>
+  <li><strong>When to deploy Best-Recall (SVM + Class Weighting):</strong> When marginal contact cost is negligible (e.g., automated cart-reminder email, exit-intent banner), and missed conversions represent significant lost lifetime value. The 80.6% recall recovers 8 out of every 10 potential buyers.</li>
+</ul>
+</div>""",
+            unsafe_allow_html=True
+        )
+
+        sim_c1, sim_c2 = st.columns(2)
+        with sim_c1:
+            margin_val = st.slider(
+                "Hypothetical Margin per Converted Buyer ($):",
+                min_value=20,
+                max_value=300,
+                value=100,
+                step=10,
+                key="sim_buyer_margin_hypo"
+            )
+        with sim_c2:
+            cost_val = st.slider(
+                "Hypothetical Cost per False Alarm (Discount / Contact) ($):",
+                min_value=1,
+                max_value=60,
+                value=15,
+                step=1,
+                key="sim_fp_cost_hypo"
+            )
+
+        val_f1 = (best_f1_row["tp"] * margin_val) - (best_f1_row["fp"] * cost_val)
+        val_rec = (best_rec_row["tp"] * margin_val) - (best_rec_row["fp"] * cost_val)
+        diff_val = val_rec - val_f1
+
+        res_c1, res_c2, res_c3 = st.columns(3)
+        with res_c1:
+            st.metric("Illustrative F1 Net Value", f"${val_f1:,.0f}", help=f"Hypothetical: ({f1_tp} buyers × ${margin_val}) − ({f1_fp} false alarms × ${cost_val})")
+        with res_c2:
+            st.metric("Illustrative Recall Net Value", f"${val_rec:,.0f}", help=f"Hypothetical: ({rec_tp} buyers × ${margin_val}) − ({rec_fp} false alarms × ${cost_val})")
+        with res_c3:
+            if diff_val >= 0:
+                st.metric("Recall Net Advantage", f"+${diff_val:,.0f}", delta="Recall Champion Wins")
+            else:
+                st.metric("F1 Net Advantage", f"+${abs(diff_val):,.0f}", delta="F1 Champion Wins")
+
+        breakeven_ratio = margin_val / cost_val if cost_val else 0
+        if diff_val >= 0:
+            st.success(
+                f"🎯 **Simulation Outcome: Deploy Best-Recall (SVM + Class Weighting).** "
+                f"Because the buyer margin (${margin_val}) exceeds {exchange_ratio:.1f}× the false alarm cost (${cost_val}) "
+                f"(current ratio: {breakeven_ratio:.1f}x), capturing +{tp_diff} extra buyers generates +${tp_diff * margin_val:,.0f}, "
+                f"which outweighs the +${fp_diff * cost_val:,.0f} false alarm expense."
+            )
+        else:
+            st.info(
+                f"🏆 **Simulation Outcome: Deploy Best-F1 (Random Forest + SMOTE).** "
+                f"Because false alarm cost (${cost_val}) is relatively high compared to customer margin (${margin_val}) "
+                f"(current ratio: {breakeven_ratio:.1f}x, below the required {exchange_ratio:.1f}x threshold), "
+                f"preventing {fp_diff} false alarms saves +${fp_diff * cost_val:,.0f}, delivering superior net value."
+            )
+
+    # ── OPTIONAL EXPANDER: 48-EXPERIMENT BENCHMARK CONTEXT ───────────────────
+    with st.expander("📈 Macro 48-Experiment Cross-Model Benchmark (All Architectures & Strategies)", expanded=False):
+        st.markdown('<div style="font-size:0.8rem;color:var(--secondary);margin-bottom:10px;">Aggregated performance of the 3 imbalance strategies averaged across all 4 feature selection subsets (16 trials per strategy):</div>', unsafe_allow_html=True)
+
+        macro_df = df.groupby(["model", "imbalance_strategy"])[["f1", "recall", "precision", "roc_auc"]].mean().reset_index()
+        model_labels = {
+            "random_forest": "Random Forest",
+            "svm": "SVM",
+            "logistic_regression": "Logistic Regression",
+            "decision_tree": "Decision Tree"
+        }
+        macro_df["ModelName"] = macro_df["model"].map(model_labels)
+        macro_df["StrategyName"] = macro_df["imbalance_strategy"].map(lambda s: strat_display_map.get(s, (s.title(),))[0])
+        macro_df["F1_pct"] = macro_df["f1"] * 100
+        macro_df["Recall_pct"] = macro_df["recall"] * 100
+
+        macro_tab1, macro_tab2 = st.tabs(["🏆 Mean F1-Score by Model & Strategy", "🎯 Mean Recall by Model & Strategy"])
+
+        with macro_tab1:
+            chart_macro_f1 = alt.Chart(macro_df).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                x=alt.X("ModelName:N", title=None, axis=alt.Axis(labelFontSize=11, labelFontWeight="bold", labelAngle=0)),
+                y=alt.Y("F1_pct:Q", title="Mean F1-Score (%)", scale=alt.Scale(domain=[0, 80]), axis=alt.Axis(format=".0f", grid=True)),
+                color=alt.Color(
+                    "StrategyName:N",
+                    scale=alt.Scale(
+                        domain=["None (Baseline)", "Class Weighting", "SMOTE Resampling"],
+                        range=["#64748b", "#2563eb", "#006242"]
+                    ),
+                    legend=alt.Legend(orient="top", title=None, labelFontSize=11)
+                ),
+                xOffset="StrategyName:N",
+                tooltip=[
+                    alt.Tooltip("ModelName:N", title="Model"),
+                    alt.Tooltip("StrategyName:N", title="Strategy"),
+                    alt.Tooltip("F1_pct:Q", format=".2f", title="Mean F1 (%)"),
+                ]
+            ).properties(height=240)
+            st.altair_chart(chart_macro_f1, use_container_width=True)
+
+        with macro_tab2:
+            chart_macro_rec = alt.Chart(macro_df).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                x=alt.X("ModelName:N", title=None, axis=alt.Axis(labelFontSize=11, labelFontWeight="bold", labelAngle=0)),
+                y=alt.Y("Recall_pct:Q", title="Mean Recall (%)", scale=alt.Scale(domain=[0, 100]), axis=alt.Axis(format=".0f", grid=True)),
+                color=alt.Color(
+                    "StrategyName:N",
+                    scale=alt.Scale(
+                        domain=["None (Baseline)", "Class Weighting", "SMOTE Resampling"],
+                        range=["#64748b", "#2563eb", "#006242"]
+                    ),
+                    legend=alt.Legend(orient="top", title=None, labelFontSize=11)
+                ),
+                xOffset="StrategyName:N",
+                tooltip=[
+                    alt.Tooltip("ModelName:N", title="Model"),
+                    alt.Tooltip("StrategyName:N", title="Strategy"),
+                    alt.Tooltip("Recall_pct:Q", format=".2f", title="Mean Recall (%)"),
+                ]
+            ).properties(height=240)
+            st.altair_chart(chart_macro_rec, use_container_width=True)
+
+    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
     # ─────────────────────────────────────────────────────────────────────────
-    # SECTION E: Research Interpretation
+    # SECTION E: Methodological Research Interpretations
     # ─────────────────────────────────────────────────────────────────────────
     st.markdown('<div class="section-heading"><span>📚 Section E: Methodological Research Interpretations</span></div>', unsafe_allow_html=True)
+    st.caption("Visual synthesis of empirical findings from 48 controlled experiments across 4 classifier architectures and 3 imbalance strategies.")
 
-    interp_col1, interp_col2 = st.columns(2, gap="medium")
+    p_col1, p_col2 = st.columns(2, gap="large")
 
-    with interp_col1:
-        st.markdown("""
-<div class="result-card" style="height:100%;">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-    <span class="viva-pill" style="background:rgba(0,74,198,0.1);color:var(--primary) !important;">INSIGHT 01</span>
-    <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">Why Accuracy is Insufficient</span>
+    # ── PANEL 1: WHY ACCURACY FAILS ON IMBALANCED DATA ───────────────────────
+    with p_col1:
+        with st.container(border=True):
+            st.markdown(
+                '<div style="font-family:var(--font-head);font-size:0.92rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                '1️⃣ The Accuracy Paradox in Skewed Distributions'
+                '</div>'
+                '<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">'
+                'Comparing a trivial all-negative rule against the Random Forest champion:'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            df_p1 = pd.DataFrame([
+                {"Model": "Naive Majority Rule (Predict No)", "Metric": "Accuracy", "Score (%)": 84.53, "Display": "84.5%"},
+                {"Model": "Naive Majority Rule (Predict No)", "Metric": "Recall", "Score (%)": 0.0, "Display": "0.0%"},
+                {"Model": "Naive Majority Rule (Predict No)", "Metric": "F1-Score", "Score (%)": 0.0, "Display": "0.00"},
+                {"Model": "Random Forest Champion", "Metric": "Accuracy", "Score (%)": 89.29, "Display": "89.3%"},
+                {"Model": "Random Forest Champion", "Metric": "Recall", "Score (%)": 68.32, "Display": "68.3%"},
+                {"Model": "Random Forest Champion", "Metric": "F1-Score", "Score (%)": 66.41, "Display": "0.6641"},
+            ])
+
+            chart_p1 = alt.Chart(df_p1).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                x=alt.X("Metric:N", title=None, axis=alt.Axis(labelAngle=0, labelFontWeight="bold")),
+                y=alt.Y("Score (%):Q", title="Score (%)", scale=alt.Scale(domain=[0, 100]), axis=alt.Axis(format=".0f", grid=True)),
+                color=alt.Color(
+                    "Model:N",
+                    scale=alt.Scale(
+                        domain=["Naive Majority Rule (Predict No)", "Random Forest Champion"],
+                        range=["#94a3b8", "#006242"]
+                    ),
+                    legend=alt.Legend(orient="top", title=None, labelFontSize=10)
+                ),
+                xOffset="Model:N",
+                tooltip=[
+                    alt.Tooltip("Model:N", title="Model"),
+                    alt.Tooltip("Metric:N", title="Metric"),
+                    alt.Tooltip("Display:N", title="Score"),
+                ]
+            ).properties(height=170)
+            st.altair_chart(chart_p1, use_container_width=True)
+
+            st.markdown(
+                '<div style="font-size:0.77rem;color:var(--secondary);line-height:1.45;background:var(--surface-low);padding:8px 12px;border-radius:6px;border-left:3px solid #ba1a1a;">'
+                '<strong>Core Finding:</strong> Standard accuracy treats all misclassifications identically. '
+                'On an 84.5% non-purchasing skew (10,422 : 1,908), predicting "No" everywhere achieves <strong>84.5% accuracy</strong> '
+                'while capturing <strong>0 actual buyers</strong>. Harmonic mean F1 resolves this by penalizing zero-recall models.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+    # ── PANEL 2: DATA-SPACE (SMOTE) VS LOSS-SPACE (CLASS WEIGHTING) ──────────
+    with p_col2:
+        with st.container(border=True):
+            st.markdown(
+                '<div style="font-family:var(--font-head);font-size:0.92rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                '2️⃣ Data-Space Synthesis vs Loss-Space Cost Scaling'
+                '</div>'
+                '<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">'
+                'How resampling alters geometry vs how class weighting alters optimization:'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            # Visual comparison cards between SMOTE and Class Weighting
+            st.markdown(
+                """<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+  <div style="background:rgba(0,98,66,0.06);border:1px solid rgba(0,98,66,0.2);padding:10px;border-radius:6px;">
+    <div style="font-size:0.72rem;font-weight:700;color:#006242;text-transform:uppercase;margin-bottom:4px;">🧬 SMOTE (Data Space)</div>
+    <div style="font-size:0.74rem;color:var(--secondary);line-height:1.4;">
+      • <strong>Mechanism:</strong> Interpolates continuous vectors between k-NN minority points.<br>
+      • <strong>Training Size:</strong> Expands from 9,864 to ~16,674 rows in CV folds.<br>
+      • <strong>Effect:</strong> Populates sparse feature neighborhoods before tree splitting.
+    </div>
   </div>
-  <p style="font-size:0.8rem;color:var(--secondary);line-height:1.5;">
-    Accuracy weights every sample equally: \(\\text{Accuracy} = \\frac{TP + TN}{N}\). In a dataset with 84.5% non-buyers, predicting the majority class unconditionally yields 84.5% accuracy with zero predictive utility. Accuracy fails because it masks severe minority error rates. In contrast, F1-Score uses the harmonic mean of Precision and Recall, which guarantees that poor performance on either metric penalizes the aggregate score.
-  </p>
-</div>
-""", unsafe_allow_html=True)
-
-        st.markdown("""
-<div class="result-card" style="height:100%;margin-top:12px;">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-    <span class="viva-pill" style="background:rgba(0,98,66,0.1);color:var(--tertiary) !important;">INSIGHT 02</span>
-    <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">SMOTE vs Class Weighting: Algorithmic Distinction</span>
+  <div style="background:rgba(0,74,198,0.06);border:1px solid rgba(0,74,198,0.2);padding:10px;border-radius:6px;">
+    <div style="font-size:0.72rem;font-weight:700;color:#004ac6;text-transform:uppercase;margin-bottom:4px;">⚖️ Class Weight (Loss Space)</div>
+    <div style="font-size:0.74rem;color:var(--secondary);line-height:1.4;">
+      • <strong>Mechanism:</strong> Multiplies loss gradient for minority errors by ~3.23×.<br>
+      • <strong>Training Size:</strong> Exactly 9,864 rows (0 synthetic rows created).<br>
+      • <strong>Effect:</strong> Shifts margin boundary directly without synthetic points.
+    </div>
   </div>
-  <p style="font-size:0.8rem;color:var(--secondary);line-height:1.5;">
-    <strong>SMOTE operates in data space:</strong> It creates synthetic continuous instances along the line segments connecting k-nearest minority neighbors, increasing minority instance density before training.
-    <br><br>
-    <strong>Class Weighting operates in loss space:</strong> It leaves training points unchanged, but multiplies the loss penalty for minority misclassifications by \(w_1 = \\frac{N}{2 \\cdot N_1}\). This forces optimization algorithms (gradient descent, quadratic programming in SVM) to shift decision boundaries toward the majority class without creating synthetic data.
-  </p>
-</div>
-""", unsafe_allow_html=True)
+</div>""",
+                unsafe_allow_html=True
+            )
 
-    with interp_col2:
+            st.markdown(
+                '<div style="font-size:0.77rem;color:var(--secondary);line-height:1.45;background:var(--surface-low);padding:8px 12px;border-radius:6px;border-left:3px solid #004ac6;">'
+                '<strong>Core Finding:</strong> Class weighting operates strictly during loss backpropagation / margin optimization, '
+                'keeping data distributions untouched. SMOTE generates synthetic continuous coordinates strictly inside training folds '
+                'to prevent cross-validation leakage.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+    st.markdown("<div style='height:8px;'></div>", unsafe_allow_html=True)
+
+    p_col3, p_col4 = st.columns(2, gap="large")
+
+    # ── PANEL 3: RECALL VS FALSE POSITIVE RATE ───────────────────────────────
+    with p_col3:
+        with st.container(border=True):
+            st.markdown(
+                '<div style="font-family:var(--font-head);font-size:0.92rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                '3️⃣ The Inevitable Recall vs False-Alarm Trade-Off'
+                '</div>'
+                '<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">'
+                'Mean empirical buyer recall vs false-positive rate (FPR) across 48 experiments:'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            # Calculate strategy means from df
+            df_trade = df.copy()
+            df_trade["fpr"] = df_trade["fp"] / (df_trade["fp"] + df_trade["tn"]) * 100
+            df_trade["recall_pct"] = df_trade["recall"] * 100
+
+            strat_map_display = {
+                "none": "Baseline (Unweighted)",
+                "class_weight": "Class Weighting",
+                "smote": "SMOTE Resampling"
+            }
+            strat_agg = df_trade.groupby("imbalance_strategy")[["fpr", "recall_pct", "precision"]].mean().reset_index()
+            strat_agg["Strategy"] = strat_agg["imbalance_strategy"].map(strat_map_display)
+            strat_agg["precision_pct"] = strat_agg["precision"] * 100
+
+            chart_p3 = alt.Chart(strat_agg).mark_circle(size=140).encode(
+                x=alt.X("fpr:Q", title="False-Positive Rate (%)", scale=alt.Scale(domain=[2, 14]), axis=alt.Axis(format=".1f", grid=True)),
+                y=alt.Y("recall_pct:Q", title="Buyer Recall (%)", scale=alt.Scale(domain=[40, 80]), axis=alt.Axis(format=".0f", grid=True)),
+                color=alt.Color(
+                    "Strategy:N",
+                    scale=alt.Scale(
+                        domain=["Baseline (Unweighted)", "Class Weighting", "SMOTE Resampling"],
+                        range=["#64748b", "#2563eb", "#006242"]
+                    ),
+                    legend=alt.Legend(orient="top", title=None, labelFontSize=10)
+                ),
+                tooltip=[
+                    alt.Tooltip("Strategy:N", title="Strategy"),
+                    alt.Tooltip("recall_pct:Q", format=".1f", title="Mean Recall (%)"),
+                    alt.Tooltip("fpr:Q", format=".1f", title="Mean FPR (%)"),
+                    alt.Tooltip("precision_pct:Q", format=".1f", title="Mean Precision (%)"),
+                ]
+            ).properties(height=170)
+
+            # Add label text on points
+            text_p3 = chart_p3.mark_text(align="left", dx=8, dy=-2, fontSize=10, fontWeight="bold").encode(
+                text=alt.Text("Strategy:N")
+            )
+            st.altair_chart(chart_p3 + text_p3, use_container_width=True)
+
+            st.markdown(
+                '<div style="font-size:0.77rem;color:var(--secondary);line-height:1.45;background:var(--surface-low);padding:8px 12px;border-radius:6px;border-left:3px solid #b45309;">'
+                '<strong>Core Finding:</strong> In web session clickstreams, high-intent window shoppers share features with buyers. '
+                'Boosting recall from 47.5% (Baseline) to 69.7% (SMOTE) more than doubles the false alarm rate '
+                '(4.5% → 11.2%), reducing precision from 68.2% to 54.0%.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+    # ── PANEL 4: INDUCTIVE BIAS DICTATES THE RESAMPLING CHAMPION ─────────────
+    with p_col4:
+        with st.container(border=True):
+            st.markdown(
+                '<div style="font-family:var(--font-head);font-size:0.92rem;font-weight:700;color:var(--on-surface);margin-bottom:2px;">'
+                '4️⃣ Inductive Bias Governs the Optimal Strategy'
+                '</div>'
+                '<div style="font-size:0.75rem;color:var(--secondary);margin-bottom:8px;">'
+                'Why different algorithm architectures respond best to different remedies:'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+            pv_model = df.groupby(["model", "imbalance_strategy"])["f1"].mean().reset_index()
+            pv_model["f1_pct"] = pv_model["f1"] * 100
+            m_labels = {
+                "random_forest": "Random Forest",
+                "svm": "SVM",
+                "logistic_regression": "Logistic Reg.",
+                "decision_tree": "Decision Tree"
+            }
+            pv_model["Model"] = pv_model["model"].map(m_labels)
+            pv_model["Strategy"] = pv_model["imbalance_strategy"].map(strat_map_display)
+
+            chart_p4 = alt.Chart(pv_model).mark_bar(cornerRadiusTopLeft=3, cornerRadiusTopRight=3).encode(
+                x=alt.X("Model:N", title=None, axis=alt.Axis(labelAngle=0, labelFontWeight="bold")),
+                y=alt.Y("f1_pct:Q", title="Mean F1 (%)", scale=alt.Scale(domain=[0, 75]), axis=alt.Axis(format=".0f", grid=True)),
+                color=alt.Color(
+                    "Strategy:N",
+                    scale=alt.Scale(
+                        domain=["Baseline (Unweighted)", "Class Weighting", "SMOTE Resampling"],
+                        range=["#64748b", "#2563eb", "#006242"]
+                    ),
+                    legend=alt.Legend(orient="top", title=None, labelFontSize=10)
+                ),
+                xOffset="Strategy:N",
+                tooltip=[
+                    alt.Tooltip("Model:N", title="Architecture"),
+                    alt.Tooltip("Strategy:N", title="Strategy"),
+                    alt.Tooltip("f1_pct:Q", format=".2f", title="Mean F1 (%)"),
+                ]
+            ).properties(height=170)
+            st.altair_chart(chart_p4, use_container_width=True)
+
+            st.markdown(
+                '<div style="font-size:0.77rem;color:var(--secondary);line-height:1.45;background:var(--surface-low);padding:8px 12px;border-radius:6px;border-left:3px solid #006242;">'
+                '<strong>Core Finding:</strong> <strong>Random Forest</strong> benefits most from SMOTE (F1 = 0.6543) '
+                'because synthetic points enrich localized leaf purity. <strong>SVM</strong> benefits most from Class Weighting '
+                '(Recall = 76.51%, F1 = 0.6323) because cost scaling rotates the margin boundary directly without synthetic geometric distortion.'
+                '</div>',
+                unsafe_allow_html=True
+            )
+
+    st.markdown("<div style='height:14px;'></div>", unsafe_allow_html=True)
+
+    # ── TECHNICAL DETAILS & RESEARCH ARTIFACTS EXPANDER ──────────────────────
+    with st.expander("ℹ️ Technical Resampling Methodology & Research Figures", expanded=False):
         st.markdown("""
-<div class="result-card" style="height:100%;">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-    <span class="viva-pill" style="background:rgba(180,83,9,0.1);color:#b45309 !important;">INSIGHT 03</span>
-    <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">The Recall vs False Positive Inevitability</span>
-  </div>
-  <p style="font-size:0.8rem;color:var(--secondary);line-height:1.5;">
-    In real-world web traffic, the feature distributions of high-intent window shoppers and actual buyers overlap significantly. To increase recall from 48% to 80%, the classifier must move its decision boundary deeper into the feature space. While this captures borderline buyers who were previously missed, it inevitably captures non-buyers who exhibited similar browsing behaviors, causing precision to decline from 74% to 51%.
-  </p>
-</div>
-""", unsafe_allow_html=True)
-
-        st.markdown("""
-<div class="result-card" style="height:100%;margin-top:12px;">
-  <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
-    <span class="viva-pill" style="background:rgba(0,74,198,0.1);color:var(--primary) !important;">INSIGHT 04</span>
-    <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">Objective-Driven Strategy Selection</span>
-  </div>
-  <p style="font-size:0.8rem;color:var(--secondary);line-height:1.5;">
-    Neither SMOTE nor Class Weighting is universally superior across all models. For Random Forest, SMOTE proved best (F1 = 0.6641) because synthetic vectors create richer sub-partitions for tree splits. For SVM, Class Weighting proved best (Recall = 80.6%, F1 = 0.6292) because scaling the C regularization parameter directly shifts the maximum-margin hyperplane without distorting support vector distances.
-  </p>
-</div>
-""", unsafe_allow_html=True)
-
-    st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # SECTION F: Viva Questions (Examiner Deep-Dive)
-    # ─────────────────────────────────────────────────────────────────────────
-    with st.expander("📖 Viva Guide: Class Imbalance & Asymmetric Learning FAQs (Examiner Deep-Dive)"):
-        st.markdown("""
-### Core Academic Questions & Viva Defenses
-
-* **Q1: What is class imbalance and why is it prevalent in online shopping datasets?**
-  * *Answer:* Class imbalance occurs when the target categories are not equally distributed in the dataset. In e-commerce, casual browsing is the default human behavior—visitors explore products, check prices, or abandon carts. Only a small fraction (here, 15.47%) complete transactions. This natural behavioral skew creates an asymmetric 5.46:1 ratio where standard loss minimization naturally ignores the rare buying class.
-
-* **Q2: What is SMOTE and how does it generate synthetic training instances?**
-  * *Answer:* SMOTE (Synthetic Minority Over-sampling Technique) operates in the continuous feature space of the minority class. For every minority sample \(x_i\), it finds its \(k\)-nearest minority neighbors. It then randomly selects one neighbor \(x_{zi}\) and generates a synthetic instance:
-    $$x_{\\text{new}} = x_i + \\lambda (x_{zi} - x_i), \\quad \\lambda \\sim \\text{Uniform}(0, 1)$$
-    Crucially, SMOTE was applied **only to the training partition** in each cross-validation fold, completely preventing data leakage into the evaluation test folds.
-
-* **Q3: What is class weighting and how does it modify the loss function?**
-  * *Answer:* Class weighting modifies the loss function directly during gradient descent or convex optimization. Under `class_weight='balanced'`, scikit-learn assigns weights inversely proportional to class frequencies:
-    $$w_c = \\frac{N}{K \\times N_c}$$
-    For the minority class (\(N_1 = 1,908\)), the weight is \(w_1 \\approx 3.23\), while the majority class (\(N_0 = 10,422\)) receives \(w_0 \\approx 0.59\). Misclassifying a positive instance is penalized ~5.5× more severely than misclassifying a negative instance, forcing the classifier to respect minority decision boundaries.
-
-* **Q4: Why is overall classification accuracy insufficient or misleading for this problem?**
-  * *Answer:* The Accuracy Paradox states that on imbalanced datasets, high accuracy can be achieved by trivial, non-informative models. A naive baseline that outputs `False` for every single visitor achieves **84.53% accuracy**, yet has **0.0% recall** and captures **$0.00 in revenue**. Accuracy cannot differentiate between a model that genuinely predicts buyers and one that simply memorizes the majority prior.
-
-* **Q5: What is the fundamental difference between precision and recall in an e-commerce deployment?**
-  * *Answer:* 
-    * **Precision (\(\\frac{TP}{TP + FP}\))** measures the quality of positive alerts: when the system predicts a visitor will buy, how often do they actually buy? Low precision leads to wasted promotional spend (e.g. distributing $15 checkout coupons to window shoppers).
-    * **Recall (\(\\frac{TP}{TP + FN}\))** measures the completeness of buyer detection: of all visitors who would have bought, how many did the system identify? Low recall leads to missed sales opportunities.
-
-* **Q6: Why can the best F1 configuration differ from the best recall configuration?**
-  * *Answer:* F1-score is the harmonic mean of precision and recall (\(2 \\times \\frac{P \\times R}{P + R}\)). It reaches its maximum when precision and recall are both reasonably high and well-balanced. Our champion F1 model (**Random Forest + Tree Importance + SMOTE**) achieves **F1 = 0.6641** with 64.6% precision and 68.3% recall, producing only 143 false alarms. In contrast, our best recall model (**SVM + RFE + Class Weight**) maximizes recall at **80.63%**, but pushes precision down to 51.59%, producing 289 false alarms. Maximizing recall requires accepting high false alarm rates, whereas maximizing F1 balances both error types.
+- **In-Fold Cross-Validation Resampling:** SMOTE was applied strictly to the training fold in each split of 10-fold cross-validation. Validation and test folds remained completely unmanipulated, preventing target leakage.
+- **Cost-Sensitive Weighting:** Assigned inverse class frequencies w_c = N / (K · N_c). For N = 12,330 sessions, minority weight is w_1 ≈ 3.23 and majority weight is w_0 ≈ 0.59 (5.5× relative positive error penalty).
+- **Synthetic Vector Interpolation:** Synthetic vectors generated as x_new = x_i + λ · (x_zi − x_i), with λ ~ Uniform(0, 1) and k = 5 nearest minority neighbors.
 """)
+        f1_resamp_fig = FIGS / "f1_by_model_and_imbalance.png"
+        pareto_fig = FIGS / "best_f1_vs_best_recall.png"
+        ci_fig = FIGS / "repeated_cv_confidence_intervals.png"
 
+        fig_cols = st.columns(2)
+        with fig_cols[0]:
+            if f1_resamp_fig.exists():
+                st.image(str(f1_resamp_fig), caption="Research Artifact: F1-Score by Model Architecture and Imbalance Treatment", use_container_width=True)
+        with fig_cols[1]:
+            if pareto_fig.exists():
+                st.image(str(pareto_fig), caption="Research Artifact: Pareto Trade-off: Best F1 Champion vs Best Recall Champion", use_container_width=True)
+        if ci_fig.exists():
+            st.image(str(ci_fig), caption="Research Artifact: 10-Fold Repeated CV 95% Confidence Intervals", use_container_width=True)
 
+    st.markdown("<div style='height:18px;'></div>", unsafe_allow_html=True)
 # ═════════════════════════════════════════════════════════════════════════════
 #  Router and Dynamic Navigation Layout
 # ═════════════════════════════════════════════════════════════════════════════
