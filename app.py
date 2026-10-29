@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import altair as alt
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
@@ -1750,14 +1751,12 @@ def render_model_performance() -> None:
     <span class="meta-pill" style="font-size:0.7rem;font-weight:600;">Accuracy {cm_row['accuracy']*100:.1f}%</span>
   </div>
 
-  <!-- Header row -->
   <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;margin-bottom:6px;">
     <div></div>
     <div class="cm-grid-header">Pred: No Purchase</div>
     <div class="cm-grid-header">Pred: Purchase</div>
   </div>
 
-  <!-- Row 1: Actual No Purchase -->
   <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;margin-bottom:6px;">
     <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;">
       Actual: No Purchase
@@ -1786,7 +1785,6 @@ def render_model_performance() -> None:
     </div>
   </div>
 
-  <!-- Row 2: Actual Purchase -->
   <div style="display:grid;grid-template-columns:100px 1fr 1fr;gap:6px;">
     <div class="cm-grid-header" style="display:flex;align-items:center;justify-content:center;text-align:center;line-height:1.2;">
       Actual: Purchase
@@ -1815,7 +1813,6 @@ def render_model_performance() -> None:
     </div>
   </div>
 
-  <!-- Bottom statistical summary bar -->
   <div class="cm-summary-bar">
     <div class="cm-summary-item">Specificity: <span class="cm-summary-val" style="color:var(--tertiary);">{tnr:.1f}%</span></div>
     <span style="color:var(--outline);">|</span>
@@ -2017,11 +2014,15 @@ def render_model_performance() -> None:
 #  PAGE: FEATURE IMPORTANCE & SHAP INTERPRETABILITY
 # ═════════════════════════════════════════════════════════════════════════════
 def render_feature_importance() -> None:
-    render_page_header(
-        title="Feature Importance & SHAP Interpretability",
-        badge="🧠 Explainable AI (XAI) · Tree MDI & Shapley Values",
-        desc="Global feature relevance and local prediction attribution analysis evaluated on 12,330 UCI e-commerce sessions."
-    )
+        # ── 1. Clean Header (Concise title & subtitle, no decorative badges) ────
+    st.markdown("""
+<div class="page-header" style="padding:16px 20px;margin-bottom:1.25rem;">
+  <div>
+    <h1 style="font-size:1.45rem;font-weight:700;margin:0 0 4px;color:var(--on-surface);">Feature Importance &amp; SHAP Interpretability</h1>
+    <p style="margin:0;font-size:0.85rem;color:var(--secondary);">Global feature relevance and local prediction attribution analysis evaluated on 12,330 UCI e-commerce sessions.</p>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     bundle = get_bundle()
     model = bundle["model"]
@@ -2030,232 +2031,92 @@ def render_feature_importance() -> None:
 
     # Create MDI ranking
     df_mdi = pd.DataFrame({
-        "raw_feature": selected_features,
-        "clean_feature": [clean_feature_name(f) for f in selected_features],
-        "importance": importances,
-    }).sort_values("importance", ascending=False).reset_index(drop=True)
+        "feature": [clean_feature_name(f) for f in selected_features],
+        "importance_pct": importances * 100,
+    }).sort_values("importance_pct", ascending=False).reset_index(drop=True)
 
-    top_mdi = df_mdi.head(12)
-    pv_share = df_mdi.loc[df_mdi["clean_feature"] == "PageValues", "importance"].iloc[0] * 100
-    exit_share = df_mdi.loc[df_mdi["clean_feature"] == "ExitRates", "importance"].iloc[0] * 100
-    ratio = pv_share / exit_share
+    top_10_mdi = df_mdi.head(10).copy()
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Top Telemetry & Dominance Highlight Banner
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown(f"""
-<div class="result-card" style="background:rgba(0,74,198,0.04);border:1px solid rgba(0,74,198,0.18);margin-bottom:1.25rem;">
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-    <div style="display:flex;align-items:flex-start;gap:12px;max-width:850px;">
-      <div style="width:40px;height:40px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">
-        ⚡
-      </div>
-      <div>
-        <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:var(--primary);margin-bottom:2px;">
-          Empirical Asymmetry Detected: PageValues Dominates Model Capacity
-        </div>
-        <div style="font-size:0.8rem;color:var(--on-surface-var);line-height:1.5;">
-          <strong>PageValues</strong> accounts for <strong>{pv_share:.1f}%</strong> of total Gini impurity reduction across 100 decision trees in the champion Random Forest model. 
-          Its concentration ratio is <strong>{ratio:.2f}×</strong> higher than the second-ranked feature (<code>ExitRates</code> at {exit_share:.1f}%). 
-          In Google Analytics, PageValues measures user interaction with high-converting URLs (such as active carts or promotions), creating an empirical proxy for commercial intent.
-        </div>
-      </div>
-    </div>
-    <div style="background:var(--surface-bright);padding:10px 16px;border-radius:var(--radius-md);box-shadow:0 1px 4px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;">
-      <span style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--secondary);letter-spacing:0.05em;">Concentration Ratio</span>
-      <span style="font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--primary);line-height:1.2;">{ratio:.2f}×</span>
-      <span style="font-size:0.68rem;color:var(--outline);">vs #2 ExitRates</span>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    # Load verified SHAP summary
+    shap_summary_data = load_shap_summary()
+    top_shap_records = shap_summary_data.get("top_features", [])
+    df_shap = pd.DataFrame([
+        {
+            "feature": clean_feature_name(item["feature"]),
+            "mean_abs_shap": item["mean_abs_shap"],
+        }
+        for item in top_shap_records
+    ]).sort_values("mean_abs_shap", ascending=False).reset_index(drop=True)
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Section A & B: Global Feature Importance (MDI) & Global SHAP Summary
-    # ─────────────────────────────────────────────────────────────────────────
-    col_mdi, col_shap = st.columns([6, 6], gap="large")
+    top_10_shap = df_shap.head(10).copy()
+    # ── 2. Feature Importance Visuals: MDI vs SHAP Bar Charts ──────────────
+    col_mdi, col_shap = st.columns(2, gap="large")
 
     with col_mdi:
-        st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Top 12 Global Features (Random Forest MDI Gini Importance)</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Mean Decrease in Impurity across 100 decision trees on the training split</div>
-    </div>
-    <span class="viva-pill" style="font-size:0.62rem;">Gini Impurity</span>
-  </div>
-""", unsafe_allow_html=True)
+        st.markdown('<div class="section-heading" style="margin-bottom:4px;">🌲 Top 10 Features by MDI Importance</div>', unsafe_allow_html=True)
+        st.caption("Mean Decrease in Impurity across 100 decision trees in the champion Random Forest.")
 
-        for i, row in top_mdi.iterrows():
-            pct = row["importance"] * 100
-            is_pv = row["clean_feature"] == "PageValues"
-            bar_color = "var(--primary)" if is_pv else "#2563eb" if i < 3 else "var(--secondary)"
-            tag_badge = '<span class="viva-pill" style="padding:1px 6px;font-size:0.55rem;background:rgba(0,74,198,0.1);color:var(--primary) !important;">Primary Driver</span>' if is_pv else ""
-            bold_style = "font-weight:700;color:var(--primary);" if is_pv else "font-weight:500;color:var(--on-surface);"
-
-            st.markdown(f"""
-<div style="margin-bottom:10px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin-bottom:3px;">
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="width:18px;font-family:monospace;font-size:0.7rem;color:var(--outline);">{i+1}.</span>
-      <span style="{bold_style}">{row['clean_feature']}</span>
-      {tag_badge}
-    </div>
-    <span style="font-family:var(--font-head);font-weight:700;{bold_style}">{pct:.1f}%</span>
-  </div>
-  <div class="bar-track" style="height:7px;">
-    <div class="bar-fill" style="width:{min(pct, 100):.1f}%;background:{bar_color};"></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-        st.markdown("""
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 12px;margin-top:14px;font-size:0.72rem;color:var(--on-surface-var);line-height:1.45;">
-    ℹ️ <strong>MDI Metric Definition:</strong> Mean Decrease in Impurity calculates each feature's contribution to splitting tree nodes. While robust for overall model pruning, MDI is population-wide, does not indicate directionality, and can over-favor continuous variables with many cut points.
-  </div>
-</div>
-""", unsafe_allow_html=True)
+        chart_mdi = alt.Chart(top_10_mdi).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("importance_pct:Q", title="Gini Importance (%)", axis=alt.Axis(format=".1f", grid=True)),
+            y=alt.Y("feature:N", sort="-x", title=None, axis=alt.Axis(labelLimit=200, labelFontSize=12)),
+            color=alt.condition(
+                alt.datum.feature == "PageValues",
+                alt.value("#004ac6"),
+                alt.value("#2563eb")
+            ),
+            tooltip=[
+                alt.Tooltip("feature:N", title="Feature"),
+                alt.Tooltip("importance_pct:Q", format=".2f", title="Importance (%)")
+            ]
+        ).properties(height=340)
+        st.altair_chart(chart_mdi, use_container_width=True)
 
     with col_shap:
-        shap_summary_data = load_shap_summary()
-        top_shap_records = shap_summary_data.get("top_features", [])
+        st.markdown('<div class="section-heading" style="margin-bottom:4px;">🧠 Top 10 Features by Global SHAP Value</div>', unsafe_allow_html=True)
+        st.caption("Mean absolute Shapley displacement |SHAP| on purchase probability (held-out test set).")
 
-        st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Global SHAP Summary (Test Set Impact Magnitude)</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Mean absolute Shapley displacement |SHAP| toward Purchase (Class 1)</div>
+        chart_shap = alt.Chart(top_10_shap).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("mean_abs_shap:Q", title="Mean |SHAP Value|", axis=alt.Axis(format=".3f", grid=True)),
+            y=alt.Y("feature:N", sort="-x", title=None, axis=alt.Axis(labelLimit=200, labelFontSize=12)),
+            color=alt.condition(
+                alt.datum.feature == "PageValues",
+                alt.value("#006242"),
+                alt.value("#059669")
+            ),
+            tooltip=[
+                alt.Tooltip("feature:N", title="Feature"),
+                alt.Tooltip("mean_abs_shap:Q", format=".4f", title="Mean |SHAP|")
+            ]
+        ).properties(height=340)
+        st.altair_chart(chart_shap, use_container_width=True)
+
+    # ── 3. Compact Viva Defense Comparison (MDI vs SHAP) ───────────────────
+    st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True)
+    viva_col1, viva_col2 = st.columns(2, gap="large")
+    with viva_col1:
+        st.markdown("""<div class="result-card" style="padding:14px 16px;border-left:4px solid var(--primary);height:100%;">
+  <div style="font-weight:700;font-size:0.9rem;color:var(--primary);margin-bottom:4px;">MDI: Population-Level Relevance</div>
+  <div style="font-size:0.78rem;color:var(--on-surface-var);line-height:1.45;">
+    Answers <em>which features matter most across the forest</em> by tracking cumulative Gini impurity reduction across all 100 trees. PageValues dominates globally with 37.0% importance.
+   </div>
+</div>""", unsafe_allow_html=True)
+
+    with viva_col2:
+        st.markdown("""<div class="result-card" style="padding:14px 16px;border-left:4px solid var(--tertiary);height:100%;">
+  <div style="font-weight:700;font-size:0.9rem;color:var(--tertiary);margin-bottom:4px;">SHAP: Instance-Level Attribution</div>
+  <div style="font-size:0.78rem;color:var(--on-surface-var);line-height:1.45;">
+    Answers <em>which features contribute most to individual predictions</em> using game-theoretic Shapley values. Captures local non-linear effects such as session-specific duration shifts.
     </div>
-    <span class="viva-pill" style="font-size:0.62rem;background:rgba(0,98,66,0.08);color:var(--tertiary) !important;">Game Theory</span>
-  </div>
-""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
 
-        max_shap = top_shap_records[0]["mean_abs_shap"] if top_shap_records else 0.2
-        for i, item in enumerate(top_shap_records):
-            c_name = clean_feature_name(item["feature"])
-            s_val = item["mean_abs_shap"]
-            bar_w = (s_val / max_shap) * 100
-            is_pv = c_name == "PageValues"
-            bar_color = "var(--tertiary)" if is_pv else "#059669" if i < 3 else "#64748b"
+    # ── 4. Interactive Local SHAP Explanation ──────────────────────────────
+    st.markdown('<div style="height:18px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">🔍 Interactive Session Prediction &amp; SHAP Attribution</div>', unsafe_allow_html=True)
 
-            st.markdown(f"""
-<div style="margin-bottom:10px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin-bottom:3px;">
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="width:18px;font-family:monospace;font-size:0.7rem;color:var(--outline);">{i+1}.</span>
-      <span style="font-weight:{'700' if is_pv else '500'};color:{'var(--tertiary)' if is_pv else 'var(--on-surface)'};">{c_name}</span>
-    </div>
-    <span style="font-family:var(--font-head);font-weight:700;color:{'var(--tertiary)' if is_pv else 'var(--on-surface)'};">{s_val:.4f}</span>
-  </div>
-  <div class="bar-track" style="height:7px;">
-    <div class="bar-fill" style="width:{min(bar_w, 100):.1f}%;background:{bar_color};"></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-        global_fig_path = FIGS / "best_f1_shap_global_summary.png"
-        if global_fig_path.exists():
-            st.image(str(global_fig_path), caption="Global SHAP Importance — Best F1 Model (RF + Tree-Importance + SMOTE, n=2,466 test sessions)", use_container_width=True)
-
-        # Local SHAP examples for both champions
-        with st.expander("🖼️ Research Figures: Local SHAP Examples for Both Champions"):
-            le_col1, le_col2 = st.columns(2)
-            with le_col1:
-                f1_local = FIGS / "best_f1_shap_local_example.png"
-                if f1_local.exists():
-                    st.image(str(f1_local), caption="Local SHAP Attribution — Best F1 Champion (Single Session)", use_container_width=True)
-            with le_col2:
-                rec_local = FIGS / "best_recall_shap_local_example.png"
-                if rec_local.exists():
-                    st.image(str(rec_local), caption="Local SHAP Attribution — Best Recall Champion (Single Session)", use_container_width=True)
-            rec_global = FIGS / "best_recall_shap_global_summary.png"
-            if rec_global.exists():
-                st.image(str(rec_global), caption="Global SHAP Importance — Best Recall Model (SVM + RFE + Class Weight)", use_container_width=True)
-
-        st.markdown("""
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 12px;margin-top:14px;font-size:0.72rem;color:var(--on-surface-var);line-height:1.45;">
-    💡 <strong>SHAP vs MDI Insight:</strong> Notice how <code>Administrative_Duration</code> ranks #2 under SHAP (0.0387) while ranking #6 under MDI (4.7%). This occurs because high administrative duration strongly shifts individual buyer probabilities, which SHAP captures locally even if fewer total tree splits were dedicated to it globally.
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Section C: Conceptual Rigor — Global Relevance vs Local Explanation (Viva Anchor)
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown("""
-<div class="result-card" style="background:#0b1c30;color:#e2e8f0;margin-bottom:1.5rem;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-    <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:34px;height:34px;border-radius:8px;background:rgba(111,251,190,0.15);color:var(--tertiary-fixed);display:flex;align-items:center;justify-content:center;font-size:18px;">
-        🎓
-      </div>
-      <div>
-        <div style="font-family:var(--font-head);font-size:1.05rem;font-weight:700;color:#ffffff;">
-          Viva Defense Anchor: Conceptual Rigor in Explainable AI
-        </div>
-        <div style="font-size:0.75rem;color:#94a3b8;">Distinguishing dataset-wide feature relevance from instance-level prediction attribution</div>
-      </div>
-    </div>
-    <span class="status-pill" style="font-size:0.62rem;background:rgba(255,255,255,0.08);color:#e2e8f0 !important;border-color:rgba(255,255,255,0.15);">XAI Taxonomical Rigor</span>
-  </div>
-
-  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:14px;">
-    <!-- Box 1: Global Relevance -->
-    <div style="background:rgba(255,255,255,0.04);border-left:4px solid var(--primary);border-radius:var(--radius-md);padding:14px 16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:#ffffff;">Global Feature Relevance</span>
-        <span style="font-size:0.6rem;background:rgba(0,74,198,0.25);color:#b4c5ff;padding:2px 6px;border-radius:4px;font-weight:600;">Population (N=12,330)</span>
-      </div>
-      <p style="font-size:0.78rem;color:#cbd5e1;line-height:1.45;margin-bottom:8px;">
-        Answers: <em>"Which behavioral signals does the model consistently prioritize across the entire population?"</em>
-      </p>
-      <ul style="font-size:0.73rem;color:#94a3b8;margin:0;padding-left:16px;line-height:1.5;">
-        <li>Evaluated via <strong>Mean Decrease in Impurity (MDI)</strong> across all tree splits.</li>
-        <li>Invariant static ranking: <code>PageValues</code> (37.0%) &gt; <code>ExitRates</code> (7.3%) &gt; <code>Administrative</code> (6.5%).</li>
-        <li>Primary utility: Feature selection, ETL optimization, dimensionality reduction.</li>
-      </ul>
-    </div>
-
-    <!-- Box 2: Local Attribution -->
-    <div style="background:rgba(255,255,255,0.04);border-left:4px solid var(--tertiary-fixed);border-radius:var(--radius-md);padding:14px 16px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:#ffffff;">Local Prediction Attribution</span>
-        <span style="font-size:0.6rem;background:rgba(111,251,190,0.2);color:var(--tertiary-fixed);padding:2px 6px;border-radius:4px;font-weight:600;">Instance-Level (Session)</span>
-      </div>
-      <p style="font-size:0.78rem;color:#cbd5e1;line-height:1.45;margin-bottom:8px;">
-        Answers: <em>"Why did this specific shopper receive a predicted probability right now?"</em>
-      </p>
-      <ul style="font-size:0.73rem;color:#94a3b8;margin:0;padding-left:16px;line-height:1.5;">
-        <li>Evaluated via <strong>Tree SHAP</strong> cooperative game theory Shapley values.</li>
-        <li>Additive guarantee: $P(\\text{{Purchase}}) = \\text{{Base Value}} + \\sum_{{i}} \\text{{SHAP}}_i$.</li>
-        <li>Primary utility: Auditable regulatory compliance, explainable intervention triggers, customer edge-case analysis.</li>
-      </ul>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Section D: Interactive Individual Prediction Explanation (Local SHAP)
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Interactive Session Explanation (Local Tree SHAP)</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Inspect how individual feature values push the probability toward or away from purchase for any session</div>
-    </div>
-    <span class="meta-pill">Real-Time Shapley Decomposition</span>
-  </div>
-""", unsafe_allow_html=True)
-
-    col_pre, col_custom = st.columns([4, 8], gap="medium")
-    with col_pre:
-        st.markdown("<span style='font-size:0.72rem;font-weight:700;text-transform:uppercase;color:var(--secondary);'>Select Session Profile</span>", unsafe_allow_html=True)
+    col_sel, col_custom = st.columns([4, 8], gap="medium")
+    with col_sel:
         profile_choice = st.selectbox(
-            "Choose a session preset to explain:",
+            "Select session Profile:",
             ["High Intent Buyer (Cart Active)", "Window Shopper (Low Engagement)", "Returning Customer (Moderate Signal)", "Custom Parameters"],
             key="fi_preset_choice"
         )
@@ -2300,237 +2161,145 @@ def render_feature_importance() -> None:
             TrafficType=2, VisitorType=vt, Weekend=wk
         )
 
-    with st.spinner("Computing local SHAP attribution decomposition…"):
-        explanation = explain_session(raw_sess)
-
+    explanation = explain_session(raw_sess)
+     
     prob = explanation["purchase_probability"]
     pred = explanation["predicted_class"]
     base_val = explanation["base_value"]
-    pos_drivers = explanation["pos_drivers"].head(5)
-    neg_drivers = explanation["neg_drivers"].head(5)
+    
+    top3_pos = explanation["pos_drivers"].head(3).copy()
+    top3_neg = explanation["neg_drivers"].head(3).copy()
+    
+    out_label = "Purchase Intended (Class 1)" if pred else "No Purchase (Class 0)"
 
     out_color = "var(--tertiary)" if pred else "var(--error)"
-    out_bg = "rgba(0,98,66,0.08)" if pred else "rgba(186,26,26,0.07)"
-    out_border = "rgba(0,98,66,0.22)" if pred else "rgba(186,26,26,0.2)"
-    out_label = "Purchase Intention Detected" if pred else "No Purchase Predicted"
-    out_icon = "🛍️" if pred else "🛒"
-
-    st.markdown(f"""
-<div style="background:{out_bg};border:1px solid {out_border};border-radius:var(--radius-md);padding:14px 18px;margin:12px 0 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-  <div style="display:flex;align-items:center;gap:12px;">
-    <div style="font-size:24px;">{out_icon}</div>
-    <div>
-      <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;color:var(--secondary);letter-spacing:0.05em;">Session Inference Outcome</div>
-      <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:{out_color};">{out_label}</div>
-    </div>
+    out_bg = "rgba(0,98,66,0.08)" if pred else "rgba(186,26,26,0.06)"
+    out_border = "rgba(0,98,66,0.2)" if pred else "rgba(186,26,26,0.2)"
+    st.markdown(f"""<div style="background:{out_bg};border:1px solid {out_border};border-radius:var(--radius-md);padding:12px 18px;margin:8px 0 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+  <div>
+    <div style="font-size:0.7rem;font-weight:700;text-transform:uppercase;color:var(--secondary);letter-spacing:0.05em;">Predicted Outcome</div>
+    <div style="font-family:var(--font-head);font-size:1.15rem;font-weight:700;color:{out_color};">{out_label}</div>
   </div>
+  <div style="display:flex;align-items:center;gap:24px;">
+    <div>
+      div style="font-size:0.68rem;color:var(--secondary);">Baseline Prior</div>
+      <div style="font-weight:700;font-size:0.95rem;color:var(--on-surface);">{base_val*100:.1f}%</div>
+
   <div style="display:flex;align-items:center;gap:20px;">
     <div style="text-align:right;">
       <div style="font-size:0.62rem;font-weight:600;text-transform:uppercase;color:var(--secondary);">Model Prior (Base Value)</div>
       <div style="font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--on-surface);">{base_val*100:.1f}%</div>
+       <div>
+      <div style="font-size:0.68rem;color:var(--secondary);font-weight:600;">Predicted Probability</div>
+      <div style="font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:{out_color};line-height:1;">{prob*100:.1f}%</div> 
     </div>
-    <div style="text-align:right;">
-      <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;color:var(--secondary);">Final P(Purchase)</div>
-      <div style="font-family:var(--font-head);font-size:1.6rem;font-weight:700;color:{out_color};line-height:1;">{prob*100:.1f}%</div>
-    </div>
-  </div>
-</div>
 """, unsafe_allow_html=True)
 
-    col_pos, col_neg = st.columns(2, gap="large")
+    col_p, col_n = st.columns(2, gap="large")
 
-    with col_pos:
-        st.markdown("""
-<div style="background:var(--surface-low);border-radius:var(--radius-md);padding:14px 16px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <span style="font-family:var(--font-head);font-size:0.88rem;font-weight:700;color:var(--tertiary);">
-      ▲ Top Positive Drivers (Pushing toward Purchase)
-    </span>
-    <span style="font-size:0.62rem;background:rgba(0,98,66,0.1);color:var(--tertiary);padding:2px 6px;border-radius:4px;font-weight:600;">+Δ Probability</span>
-  </div>
-""", unsafe_allow_html=True)
-
-        if len(pos_drivers) == 0:
-            st.markdown("<div style='font-size:0.75rem;color:var(--secondary);'>No positive feature displacement for this session.</div>", unsafe_allow_html=True)
+    with col_p:
+        st.markdown('<div style="font-weight:600;font-size:0.85rem;color:var(--tertiary);margin-bottom:6px;">▲ Top 3 Positive Contributors (+Δ Probability)</div>', unsafe_allow_html=True)
+        if len(top3_pos) > 0:
+            top3_pos["contrib_pct"] = top3_pos["shap_value"] * 100
+            chart_p = alt.Chart(top3_pos).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4, color="#006242").encode(
+                x=alt.X("contrib_pct:Q", title="+Δ Probability (%)", axis=alt.Axis(format=".1f", grid=True)),
+                y=alt.Y("clean_feature:N", sort="-x", title=None, axis=alt.Axis(labelLimit=180, labelFontSize=12)),
+                tooltip=[
+                    alt.Tooltip("clean_feature:N", title="Feature"),
+                    alt.Tooltip("contrib_pct:Q", format="+.2f", title="+Δ Prob (%)")
+                ]
+            ).properties(height=140)
+            st.altair_chart(chart_p, use_container_width=True)
         else:
-            for _, r in pos_drivers.iterrows():
-                val_raw = raw_sess.get(r['raw_feature'].replace('numerical__', '').replace('categorical__', '').split('_')[0], 'Active')
-                pct_shift = r['shap_value'] * 100
-                st.markdown(f"""
-<div style="margin-bottom:8px;">
-  <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:2px;">
-    <span><strong>{r['clean_feature']}</strong> <span style="color:var(--outline);font-size:0.7rem;">(value: {val_raw})</span></span>
-    <span style="font-family:var(--font-head);font-weight:700;color:var(--tertiary);">+{pct_shift:.1f}%</span>
-  </div>
-  <div class="bar-track" style="height:6px;">
-    <div class="bar-fill" style="width:{min(pct_shift*2.5, 100):.1f}%;background:var(--tertiary);"></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+            st.info("No positive SHAP displacement for this session.")
 
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with col_neg:
-        st.markdown("""
-<div style="background:var(--surface-low);border-radius:var(--radius-md);padding:14px 16px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <span style="font-family:var(--font-head);font-size:0.88rem;font-weight:700;color:var(--error);">
-      ▼ Top Negative Drivers (Suppressing Purchase Intent)
-    </span>
-    <span style="font-size:0.62rem;background:rgba(186,26,26,0.1);color:var(--error);padding:2px 6px;border-radius:4px;font-weight:600;">-Δ Probability</span>
-  </div>
-""", unsafe_allow_html=True)
-
-        if len(neg_drivers) == 0:
-            st.markdown("<div style='font-size:0.75rem;color:var(--secondary);'>No negative feature displacement for this session.</div>", unsafe_allow_html=True)
+    with col_n:
+        st.markdown('<div style="font-weight:600;font-size:0.85rem;color:var(--error);margin-bottom:6px;">▼ Top 3 Negative Contributors (-Δ Probability)</div>', unsafe_allow_html=True)
+        if len(top3_neg) > 0:
+            top3_neg["contrib_pct"] = top3_neg["shap_value"] * 100
+            chart_n = alt.Chart(top3_neg).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4, color="#ba1a1a").encode(
+                x=alt.X("contrib_pct:Q", title="-Δ Probability (%)", axis=alt.Axis(format=".1f", grid=True)),
+                y=alt.Y("clean_feature:N", sort="x", title=None, axis=alt.Axis(labelLimit=180, labelFontSize=12)),
+                tooltip=[
+                    alt.Tooltip("clean_feature:N", title="Feature"),
+                    alt.Tooltip("contrib_pct:Q", format="+.2f", title="Δ Prob (%)")
+                ]
+            ).properties(height=140)
+            st.altair_chart(chart_n, use_container_width=True)
         else:
-            for _, r in neg_drivers.iterrows():
-                val_raw = raw_sess.get(r['raw_feature'].replace('numerical__', '').replace('categorical__', '').split('_')[0], 'Active')
-                pct_shift = abs(r['shap_value']) * 100
-                st.markdown(f"""
-<div style="margin-bottom:8px;">
-  <div style="display:flex;justify-content:space-between;font-size:0.75rem;margin-bottom:2px;">
-    <span><strong>{r['clean_feature']}</strong> <span style="color:var(--outline);font-size:0.7rem;">(value: {val_raw})</span></span>
-    <span style="font-family:var(--font-head);font-weight:700;color:var(--error);">-{pct_shift:.1f}%</span>
-  </div>
-  <div class="bar-track" style="height:6px;">
-    <div class="bar-fill" style="width:{min(pct_shift*2.5, 100):.1f}%;background:var(--error);"></div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
+            st.info("No negative SHAP displacement for this session.")
 
-        st.markdown("</div>", unsafe_allow_html=True)
+    # ── 5. Feature Selection Results & Target Leakage Ablation Study ────────
+    st.markdown('<div style="height:20px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-heading">📊 Feature Selection Strategy Comparison &amp; Ablation Study</div>', unsafe_allow_html=True)  
 
-    st.markdown("""
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 14px;margin-top:12px;font-size:0.72rem;color:var(--secondary);line-height:1.45;">
-    ⚠️ <strong>Examiner Integrity Notice:</strong> 
-    SHAP contributions reflect local linear statistical decomposition of the trained tree ensemble's internal decision logic. 
-    They demonstrate <em>associational attribution</em> within the model, not <em>causal real-world intervention effects</em> (e.g. arbitrarily forcing PageValues higher does not guarantee a customer will buy).
-  </div>
-</div>
-""", unsafe_allow_html=True)
+    col_fs_chart, col_fs_ablation = st.columns([5, 7], gap="large")
 
-    # ─────────────────────────────────────────────────────────────────────────
-    # Section E: Feature Selection Strategy Comparison & PageValues Ablation
-    # ─────────────────────────────────────────────────────────────────────────
-    st.markdown("""
-<div class="result-card">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
-    <div>
-      <div class="result-card-title" style="margin-bottom:2px;">Comparison of 4 Feature Selection Strategies</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Experimental results testing information retention vs noise reduction across 48 runs</div>
-    </div>
-    <span class="viva-pill">Ablation Study</span>
-  </div>
+    with col_fs_chart:
+        st.markdown('<div style="font-weight:600;font-size:0.85rem;margin-bottom:4px;">F1-Score Across 4 Selection Strategies</div>', unsafe_allow_html=True)
+        st.caption("Benchmark on Random Forest + SMOTE across 48 experimental trials.")
 
-  <div style="grid-template-columns:repeat(auto-fit, minmax(230px, 1fr));gap:12px;margin-bottom:16px;display:grid;">
-    <!-- Strat 1 -->
-    <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-          <span>Baseline</span><span>17 Raw / 75 Encoded</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">All Features</div>
-        <div style="font-size:0.72rem;color:var(--on-surface-var);line-height:1.4;margin:6px 0;">Preserves all visitor attributes without pruning low-variance metadata.</div>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;margin-bottom:2px;"><span>F1 Score</span><span>0.5897</span></div>
-        <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:59.0%;background:var(--secondary);"></div></div>
-      </div>
-    </div>
+        df_fs = pd.DataFrame([
+            {"Strategy": "Tree-Based (MDI)", "F1_Score": 0.6641, "Features": "Top 25 MDI Features", "Highlight": "Champion"},
+            {"Strategy": "Correlation Filter", "F1_Score": 0.6563, "Features": "Pruned (|r| > 0.15)", "Highlight": "Standard"},
+            {"Strategy": "All Features (Baseline)", "F1_Score": 0.6563, "Features": "All 75 Encoded Features", "Highlight": "Standard"},
+            {"Strategy": "Recursive Elimin. (RFE)", "F1_Score": 0.6406, "Features": "Top 40 Iterative Features", "Highlight": "Standard"}
+        ])
 
-    <!-- Strat 2 -->
-    <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-          <span>Filter</span><span>Correlation Cutoff</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">Correlation Filter</div>
-        <div style="font-size:0.72rem;color:var(--on-surface-var);line-height:1.4;margin:6px 0;">Prunes collinear web telemetry (r &gt; 0.15) but discards non-linear interactions.</div>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;margin-bottom:2px;"><span>F1 Score</span><span>0.6563</span></div>
-        <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:65.6%;background:#2563eb;"></div></div>
-      </div>
-    </div>
+        bars_fs = alt.Chart(df_fs).mark_bar(cornerRadiusTopRight=4, cornerRadiusBottomRight=4).encode(
+            x=alt.X("F1_Score:Q", title="Minority Class F1-Score", scale=alt.Scale(domain=[0, 0.82]), axis=alt.Axis(format=".2f", grid=True)),
+            y=alt.Y("Strategy:N", sort="-x", title=None, axis=alt.Axis(labelLimit=180, labelFontSize=12)),
+            color=alt.condition(
+                alt.datum.Highlight == "Champion",
+                alt.value("#004ac6"),
+                alt.value("#94a3b8")
+            ),
+            tooltip=[
+                alt.Tooltip("Strategy:N", title="Strategy"),
+                alt.Tooltip("Features:N", title="Features Retained"),
+                alt.Tooltip("F1_Score:Q", format=".4f", title="F1-Score")
+            ]
+        )
+        text_fs = bars_fs.mark_text(
+            align="left",
+            baseline="middle",
+            dx=5,
+            fontSize=11,
+            fontWeight=600
+        ).encode(
+            text=alt.Text("F1_Score:Q", format=".4f")
+        )
+        chart_fs = (bars_fs + text_fs).properties(height=200)
+        st.altair_chart(chart_fs, use_container_width=True)
 
-    <!-- Strat 3 -->
-    <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--secondary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-          <span>Iterative</span><span>Backward Elimination</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">Recursive Elimination (RFE)</div>
-        <div style="font-size:0.72rem;color:var(--on-surface-var);line-height:1.4;margin:6px 0;">Iteratively prunes least impactful features; best for linear margin models (SVM).</div>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;margin-bottom:2px;"><span>F1 Score</span><span>0.6292</span></div>
-        <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:62.9%;background:#64748b;"></div></div>
-      </div>
-    </div>
+    with col_fs_ablation:
+        st.markdown('<div style="font-weight:600;font-size:0.85rem;margin-bottom:4px;">🔬 Target Leakage &amp; PageValues Ablation Finding</div>', unsafe_allow_html=True)
+        st.markdown("""<div class="result-card" style="padding:12px 14px;font-size:0.78rem;line-height:1.45;color:var(--on-surface-var);margin-bottom:8px;">
+  <strong>Key Finding:</strong> Removing <code>PageValues</code> causes baseline SVM recall to collapse from <strong>46.9% to 0.26%</strong>, confirming that unweighted models heavily rely on it. However, with SMOTE and class weighting, pure clickstream features (<code>ExitRates</code>, <code>ProductRelated_Duration</code>) achieve <strong>ROC-AUC = 0.75</strong> and recall of <strong>68.9%–74.9%</strong>.
+</div>""", unsafe_allow_html=True)
 
-    <!-- Strat 4 (BEST) -->
-    <div style="background:rgba(0,74,198,0.06);border:1px solid rgba(0,74,198,0.25);border-radius:var(--radius-md);padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.65rem;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-          <span>Top Strategy</span><span>MDI Ranked (40 Feats)</span>
-        </div>
-        <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--primary);">Tree-Based Importance</div>
-        <div style="font-size:0.72rem;color:var(--on-surface-var);line-height:1.4;margin:6px 0;">Focuses capacity on non-linear behavioral signals while shedding categorical noise.</div>
-      </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:0.75rem;font-weight:700;color:var(--primary);margin-bottom:2px;"><span>Champion F1</span><span>0.6641</span></div>
-        <div class="bar-track" style="height:5px;"><div class="bar-fill" style="width:66.4%;background:var(--primary);"></div></div>
-      </div>
-    </div>
-  </div>
+        ablation_fig = FIGS / "pagevalues_ablation_performance.png"
+        if ablation_fig.exists():
+            st.image(str(ablation_fig), caption="PageValues Ablation: Performance Comparison Across Classifiers", use_container_width=True)
 
-  <!-- Deep Dive: Real-world limitations & PageValues Ablation Findings -->
-  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:14px 16px;">
-    <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);margin-bottom:6px;">
-      🔬 Target Leakage & Pure Browsing Behavior Ablation Study
-    </div>
-    <div style="font-size:0.78rem;color:var(--on-surface-var);line-height:1.5;">
-      In real-world e-commerce deployments, <code>PageValues</code> may not be available early in a browsing session (cold-start visitors who have not yet navigated to checkout or high-intent promotional pages). 
-      To test model robustness against target leakage, our project conducted a systematic ablation study:
-    </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:10px;margin-top:10px;">
-      <div style="background:var(--surface-bright);padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--outline-var);">
-        <div style="font-size:0.7rem;font-weight:700;color:var(--error);text-transform:uppercase;">Unweighted Baselines Collapse</div>
-        <div style="font-size:0.75rem;color:var(--on-surface);margin-top:2px;">
-          Removing PageValues causes baseline SVM recall to collapse from <strong>46.9% to 0.26%</strong>, and Logistic Regression from <strong>35.9% to 3.4%</strong>. Unweighted models relied almost entirely on PageValues.
-        </div>
-      </div>
-      <div style="background:var(--surface-bright);padding:10px 12px;border-radius:var(--radius-sm);border:1px solid var(--outline-var);">
-        <div style="font-size:0.7rem;font-weight:700;color:var(--tertiary);text-transform:uppercase;">Imbalance Mitigation Recovers Signal</div>
-        <div style="font-size:0.75rem;color:var(--on-surface);margin-top:2px;">
-          With class weighting and SMOTE, pure clickstream features (<code>ExitRates</code>, <code>ProductRelated_Duration</code>, <code>Administrative_Duration</code>) achieve <strong>ROC-AUC = 0.75</strong> and recall of <strong>68.9%–74.9%</strong>.
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-
-    # ─────────────────────────────────────────────────────────────────────────
-    # Section F: Viva Defense Guide (Collapsible Expander)
-    # ─────────────────────────────────────────────────────────────────────────
-    with st.expander("📖 Viva Guide: Feature Attribution & Interpretability FAQs (Examiner Deep-Dive)"):
+    # ── 6. Technical Details (Compact Expander) ────────────────────────────
+    with st.expander("ℹ️ Technical & Methodology Details"):
         st.markdown("""
-### Academic & Industrial Defense Questions
-
-* **Q: Why is `PageValues` so much more important than raw duration or page count?**
-  * *Answer:* `ProductRelated_Duration` reflects passive browsing time, which window shoppers and buyers alike can accumulate. In contrast, `PageValues` requires navigating through URLs that have historically yielded completed transactions. It is a direct signal of commercial commitment rather than casual browsing.
-
-* **Q: Why did Tree-Based Importance outperform Recursive Feature Elimination (RFE)?**
-  * *Answer:* RFE iteratively eliminates features based on linear coefficients or single-model weights. Random Forest's MDI feature importance measures interactions across 100 randomly subsampled feature spaces. It retained non-linear threshold combinations (such as high `PageValues` in `Month=Nov` during Black Friday sales) that linear filtering discarded.
-
-* **Q: Why do SHAP values sometimes rank features differently from Gini Importance (MDI)?**
-  * *Answer:* Gini importance (MDI) measures node purity gain across all splits in training, inherently favoring continuous variables with many unique values. SHAP calculates exact marginal displacements on the final probability output via Shapley game theory. A feature like `Administrative_Duration` may be split on less frequently overall, but when an individual spends 95s on administrative pages, its local displacement on purchase likelihood is massive.
-
-* **Q: Can e-commerce businesses use these SHAP scores to make causal interventions?**
-  * *Answer:* No. Machine learning models identify associational correlations, not causal relationships. Artificially inflating PageValues (e.g. by forcing visitors to visit cart pages prematurely) will not increase conversions and could irritate users. SHAP explains *what the model learned*, not the underlying customer psychology.
+- **Tree-SHAP Calculation:** Uses path-dependent tree traversal to calculate exact Shapley values in polynomial time $O(TLD^2)$, where $T$ is the number of trees (100) and $D$ is maximum tree depth.
+- **MDI vs SHAP Distinction:** Mean Decrease in Impurity (MDI) measures global node purity gain during training splits, while SHAP calculates exact additive marginal displacements on the final probability output via cooperative game theory.
+- **Ablation Protocol:** Evaluated across all 4 supervised classifiers on held-out test splits ($n=2,466$) with both balanced resampling and unweighted baselines.
 """)
+        global_fig_path = FIGS / "best_f1_shap_global_summary.png"
+        local_fig_path = FIGS / "best_f1_shap_local_example.png"
+        if global_fig_path.exists() or local_fig_path.exists():
+            st.markdown('<div style="font-size:0.75rem;font-weight:600;color:var(--secondary);margin-top:10px;">Research Figure Artifacts:</div>', unsafe_allow_html=True)
+            r_c1, r_c2 = st.columns(2)
+            with r_c1:
+                if global_fig_path.exists():
+                    st.image(str(global_fig_path), caption="Matplotlib Global SHAP Summary Plot", use_container_width=True)
+            with r_c2:
+                if local_fig_path.exists():
+                    st.image(str(local_fig_path), caption="Matplotlib Local SHAP Explanation Example", use_container_width=True)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -2576,14 +2345,11 @@ def render_class_imbalance() -> None:
       In online retail, purchase conversions are rare positive events. Out of <strong>{total_sessions:,}</strong> total recorded sessions, <strong>{no_purchase:,}</strong> visitors browsed without purchasing, while only <strong>{purchases:,}</strong> completed a purchase.
     </p>
 
-    <!-- Visual Donut & Breakdown Row -->
+  
     <div style="display:flex;align-items:center;gap:20px;background:var(--surface-low);padding:16px;border-radius:var(--radius-md);margin-bottom:14px;">
-      <!-- SVG Donut Chart -->
       <div style="position:relative;width:125px;height:125px;flex-shrink:0;">
         <svg viewBox="0 0 100 100" style="width:100%;height:100%;transform:rotate(-90deg);">
-          <!-- Negative Class (84.53%): 251.32 * 0.845255 = 212.4 -->
           <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--secondary-container)" stroke-width="12" stroke-dasharray="212.4 251.3" stroke-linecap="round"/>
-          <!-- Positive Class (15.47%): 251.32 * 0.154745 = 38.9 -->
           <circle cx="50" cy="50" r="40" fill="transparent" stroke="var(--primary-container)" stroke-width="12" stroke-dasharray="38.9 251.3" stroke-dashoffset="-212.4" stroke-linecap="round"/>
         </svg>
         <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;">
@@ -2592,7 +2358,6 @@ def render_class_imbalance() -> None:
         </div>
       </div>
 
-      <!-- Class Breakdown Stats -->
       <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
         <div style="background:var(--surface-bright);padding:9px 12px;border-radius:var(--radius-sm);box-shadow:0 1px 3px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -2646,7 +2411,6 @@ def render_class_imbalance() -> None:
       Standard loss functions minimize aggregate misclassification count. When 84.5% of samples belong to the negative class, a trivial model predicting <em>No Purchase</em> unconditionally achieves deceptively high accuracy.
     </p>
 
-    <!-- Naive Simulation Grid -->
     <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:14px;margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <span style="font-size:0.75rem;font-weight:700;color:var(--on-surface);">Naive Zero-Rule Classifier (Predicts "No" 100%)</span>
