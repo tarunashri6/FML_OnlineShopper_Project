@@ -1,0 +1,352 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary-container":"#dae2fd","tertiary-fixed-dim":"#4edea3","primary-fixed-dim":"#b4c5ff","outline-variant":"#c3c6d7","on-error":"#ffffff","on-secondary":"#ffffff","primary-fixed":"#dbe1ff","surface-container":"#e5eeff","on-primary-fixed":"#00174b","on-surface":"#0b1c30","outline":"#737686","on-tertiary-fixed":"#002113","tertiary-fixed":"#6ffbbe","inverse-surface":"#213145","surface-bright":"#f8f9ff","tertiary-container":"#007d55","on-primary-container":"#eeefff","surface-container-highest":"#d3e4fe","on-secondary-container":"#5c647a","on-primary":"#ffffff","inverse-primary":"#b4c5ff","secondary-fixed":"#dae2fd","surface-tint":"#0053db","on-error-container":"#93000a","on-primary-fixed-variant":"#003ea8","surface":"#f8f9ff","surface-container-lowest":"#ffffff","error":"#ba1a1a","primary":"#004ac6","surface-container-high":"#dce9ff","tertiary":"#006242","error-container":"#ffdad6","secondary":"#565e74","on-tertiary-fixed-variant":"#005236","on-surface-variant":"#434655","secondary-fixed-dim":"#bec6e0","primary-container":"#2563eb","background":"#f8f9ff","surface-dim":"#cbdbf5","surface-variant":"#d3e4fe","surface-container-low":"#eff4ff","on-tertiary":"#ffffff","inverse-on-surface":"#eaf1ff","on-background":"#0b1c30","on-tertiary-container":"#bdffdb","on-secondary-fixed":"#131b2e","on-secondary-fixed-variant":"#3f465c"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-xl":"2rem","space-sm":"0.5rem",gutter:"1.5rem","space-lg":"1.5rem",margin:"2rem","space-xs":"0.25rem","gutter-sm":"1rem","space-md":"1rem","margin-mobile":"1rem"},fontFamily:{"metric-tabular":["Inter"],"label-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"metric-display":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-lg":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"body-sm":["Inter"],"label-md":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"]},fontSize:{"metric-tabular":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"label-lg":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"body-md":["0.875rem",{lineHeight:"1.375rem",fontWeight:"400"}],"label-sm":["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.05em",fontWeight:"600"}],"metric-display":["2rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-xl":["2.25rem",{lineHeight:"2.75rem",letterSpacing:"-0.025em",fontWeight:"700"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",fontWeight:"400"}],"headline-lg":["1.5rem",{lineHeight:"2rem",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-sm":["1rem",{lineHeight:"1.5rem",fontWeight:"600"}],"headline-md":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"-0.015em",fontWeight:"600"}],"body-sm":["0.75rem",{lineHeight:"1.125rem",fontWeight:"400"}],"label-md":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.025em",fontWeight:"500"}],"headline-xl-mobile":["1.75rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-on-surface z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">analytics</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-surface-container-lowest tracking-tight truncate">ShopperAI</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Purchase Intention ML Research</span></div></div><div class="bg-inverse-surface rounded-xl p-space-sm flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-xs min-w-0"><span class="relative flex h-2 w-2 shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-fixed"></span></span><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-surface-container-lowest uppercase tracking-wider truncate">Inference Ready</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Random Forest</span></div></div><span class="font-label-sm text-label-sm bg-tertiary-container text-on-tertiary-container px-space-xs py-0.5 rounded-lg shrink-0">READY</span></div><nav class="flex flex-col gap-space-xs pt-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-label-lg rounded-xl"><a aria-current="page" class="flex items-center px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-label-lg rounded-xl" data-path="overview" href="#">Overview</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="live-prediction" href="#">Live Prediction</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="model-performance" href="#">Model Performance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="feature-importance" href="#">Feature Importance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="class-imbalance" href="#">Class Imbalance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="about-project" href="#">About Project</a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-inverse-surface/40 p-space-sm rounded-xl"><div class="flex items-center justify-between text-outline-variant"><span class="font-label-sm text-label-sm uppercase tracking-wider">Dataset Split</span><span class="font-metric-tabular text-metric-tabular text-tertiary-fixed">80/20 Stratified</span></div><div class="w-full bg-inverse-surface rounded-full h-1.5 overflow-hidden"><div class="bg-tertiary-fixed h-full rounded-full w-[80%]"></div></div><span class="font-body-sm text-body-sm text-outline-variant truncate">12,330 Total Sessions · 18 Features</span></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-secondary-container/70 text-on-secondary-fixed px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">school</span><span class="font-label-sm text-label-sm font-semibold tracking-wide uppercase">University Project Viva Demo</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-secondary">dataset</span><span class="font-body-sm text-body-sm text-on-surface-variant font-medium">UCI Online Shoppers (12,330 Sessions)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">account_tree</span><span class="font-label-md text-label-md font-semibold text-on-surface">Random Forest Classifier</span></div></div></header><main class="w-full pt-16 flex-1 bg-surface px-space-lg py-space-md"><div class="flex flex-col w-full">
+<div class="flex flex-col gap-space-lg w-full max-w-[1400px] mx-auto pb-space-xl">
+<!-- Hero Header / Intro Block -->
+<div class="relative overflow-hidden rounded-xl bg-surface-container-lowest p-space-xl shadow-sm">
+<div class="absolute -right-20 -top-20 w-96 h-96 rounded-full bg-primary/5 pointer-events-none blur-3xl"></div>
+<div class="absolute right-1/4 -bottom-10 w-72 h-72 rounded-full bg-tertiary-container/10 pointer-events-none blur-2xl"></div>
+<div class="relative z-10 flex flex-col gap-space-md">
+<div class="flex flex-wrap items-center justify-between gap-space-sm">
+<div class="inline-flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-full text-secondary">
+<span class="material-symbols-outlined text-[18px] text-primary" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold text-on-surface-variant">Academic Empirical Benchmark · Viva Master Edition</span>
+</div>
+<div class="flex items-center gap-space-xs text-outline font-label-md text-label-md">
+<span class="material-symbols-outlined text-[16px]">database</span>
+<span>UCI Machine Learning Repository #468</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-xs max-w-4xl">
+<h1 class="font-headline-xl text-headline-xl text-on-surface tracking-tight">
+            Online Shopper Purchase Intention Predictor
+          </h1>
+<p class="font-body-lg text-body-lg text-secondary">
+            A Machine Learning Benchmark Study on 12,330 Visitor Sessions (UCI Dataset)
+          </p>
+</div>
+<div class="mt-space-xs p-space-md rounded-xl bg-surface-container-low flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[22px]">target</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Research Objective</span>
+<p class="font-body-md text-body-md text-on-surface-variant">
+                Predicting whether an e-commerce visitor will complete a purchase transaction based on session browsing behavior, web analytics, and contextual features.
+              </p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs shrink-0 self-end md:self-center">
+<span class="font-label-sm text-label-sm bg-surface-container px-space-sm py-1 rounded-lg text-on-surface font-semibold">Binary Classification</span>
+<span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-space-sm py-1 rounded-lg font-semibold">18 Features</span>
+</div>
+</div>
+</div>
+</div>
+<!-- 4 Statistic Cards Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+<!-- Card 1 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Dataset Sessions</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">group</span>
+</span>
+</div>
+<div class="my-space-md">
+<div class="font-metric-display text-metric-display text-on-surface tracking-tight">12,330</div>
+<div class="font-body-sm text-body-sm text-secondary mt-1">UCI Machine Learning Repository benchmark sample</div>
+</div>
+<div class="flex items-center gap-space-xs text-primary font-label-md text-label-md bg-secondary-container/50 px-space-xs py-1 rounded-lg w-fit">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+<span>100% Validated Data Integrity</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Overall Purchase Rate</span>
+<span class="w-8 h-8 rounded-lg bg-error-container/60 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[18px]">shopping_cart</span>
+</span>
+</div>
+<div class="my-space-md">
+<div class="font-metric-display text-metric-display text-on-surface tracking-tight">15.47%</div>
+<div class="font-body-sm text-body-sm text-secondary mt-1">1,908 purchase sessions vs 10,422 non-purchase</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-error-container font-label-md text-label-md bg-error-container/70 px-space-xs py-1 rounded-lg w-fit">
+<span class="material-symbols-outlined text-[14px]">warning</span>
+<span>Significant 5.46:1 Imbalance</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline">Systematic Experiments</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container-low flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">biotech</span>
+</span>
+</div>
+<div class="my-space-md">
+<div class="font-metric-display text-metric-display text-on-surface tracking-tight">48</div>
+<div class="font-body-sm text-body-sm text-secondary mt-1">4 algorithms × 4 feature sets × 3 balancing strategies</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-secondary-container font-label-md text-label-md bg-surface-container px-space-xs py-1 rounded-lg w-fit">
+<span class="material-symbols-outlined text-[14px]">tune</span>
+<span>5-Fold Stratified CV</span>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary">Best F1-Score</span>
+<span class="w-8 h-8 rounded-lg bg-tertiary-container/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[18px]">trophy</span>
+</span>
+</div>
+<div class="my-space-md">
+<div class="font-metric-display text-metric-display text-tertiary tracking-tight">0.664</div>
+<div class="font-body-sm text-body-sm text-secondary mt-1">Random Forest with tuned hyper-parameters &amp; SMOTE</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-tertiary-container font-label-md text-label-md bg-tertiary-container px-space-xs py-1 rounded-lg w-fit">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+<span>+22.5% over Logistic Reg.</span>
+</div>
+</div>
+</div>
+<!-- Visual Charts Section (Side-by-Side) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+<!-- Left Card: Dataset Class Distribution Donut -->
+<div class="lg:col-span-5 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">pie_chart</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Dataset Class Distribution</h2>
+</div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider bg-surface-container px-space-xs py-1 rounded text-on-surface-variant font-semibold">UCI Binary Ground Truth</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mb-space-md">
+            Distribution showing severe minority class representation (Revenue = True).
+          </p>
+<!-- Donut SVG Visualization -->
+<div class="relative flex items-center justify-center py-space-md">
+<svg class="w-56 h-56 transform -rotate-90" viewBox="0 0 160 160">
+<!-- Background / Non-purchase Track (84.53%) -->
+<!-- Circumference = 2 * PI * 60 = 376.99 -->
+<!-- 84.53% = 318.67, 15.47% = 58.32 -->
+<circle class="text-surface-container-highest" cx="80" cy="80" fill="transparent" r="60" stroke="currentColor" stroke-width="18"></circle>
+<!-- Purchase Slice (15.47%) -->
+<circle class="text-tertiary-container transition-all duration-1000 ease-out" cx="80" cy="80" fill="transparent" r="60" stroke="currentColor" stroke-dasharray="376.99" stroke-dashoffset="318.67" stroke-linecap="round" stroke-width="18"></circle>
+</svg>
+<!-- Central Typography Badge -->
+<div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Ratio</span>
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">84.5% : 15.5%</span>
+<span class="font-body-sm text-body-sm text-secondary">Class Imbalance</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm pt-space-md bg-surface-container-low p-space-sm rounded-xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-3 h-3 rounded-full bg-surface-container-highest"></div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">No Purchase (False)</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-metric-tabular text-metric-tabular text-on-surface">10,422 sessions</span>
+<span class="font-label-sm text-label-sm font-bold bg-surface-container px-space-xs py-0.5 rounded text-secondary">84.53%</span>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<div class="w-3 h-3 rounded-full bg-tertiary-container"></div>
+<span class="font-body-sm text-body-sm text-on-surface font-medium">Purchase Completed (True)</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<span class="font-metric-tabular text-metric-tabular text-tertiary font-bold">1,908 sessions</span>
+<span class="font-label-sm text-label-sm font-bold bg-tertiary-fixed text-on-tertiary-fixed px-space-xs py-0.5 rounded">15.47%</span>
+</div>
+</div>
+<div class="pt-space-xs text-outline font-body-sm text-body-sm italic">
+            *Standard models suffer high accuracy paradox (84.5% trivial baseline) without targeted sampling.
+          </div>
+</div>
+</div>
+<!-- Right Card: Model Comparison (F1-Score Benchmark) Bar Chart -->
+<div class="lg:col-span-7 rounded-xl bg-surface-container-lowest p-space-lg shadow-sm flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-space-sm">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">bar_chart</span>
+<h2 class="font-headline-md text-headline-md text-on-surface">Model Comparison (F1-Score Benchmark)</h2>
+</div>
+<span class="font-label-sm text-label-sm uppercase tracking-wider bg-primary-fixed text-on-primary-fixed px-space-xs py-1 rounded font-bold">Minority Class Metric</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary mb-space-lg">
+            Cross-validated comparison across 4 benchmark algorithms under SMOTE resampling strategy.
+          </p>
+<!-- Bar Chart Container -->
+<div class="flex flex-col gap-space-md py-space-xs">
+<!-- Logistic Regression -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm">
+<span class="font-body-md text-body-md text-on-surface font-medium">Logistic Regression (L2 Regularized)</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-bold">0.542</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden">
+<div class="bg-outline-variant h-full rounded-full transition-all duration-700" style="width: 54.2%;"></div>
+</div>
+</div>
+<!-- Decision Tree -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm">
+<span class="font-body-md text-body-md text-on-surface font-medium">Decision Tree (CART Pruned)</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-bold">0.589</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden">
+<div class="bg-secondary h-full rounded-full transition-all duration-700" style="width: 58.9%;"></div>
+</div>
+</div>
+<!-- Support Vector Machine -->
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-center text-body-sm">
+<span class="font-body-md text-body-md text-on-surface font-medium">Support Vector Machine (RBF Kernel)</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-bold">0.578</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3 overflow-hidden">
+<div class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 57.8%;"></div>
+</div>
+</div>
+<!-- Random Forest (Top Performer) -->
+<div class="flex flex-col gap-1 p-space-xs -mx-space-xs rounded-lg bg-surface-container-low">
+<div class="flex justify-between items-center text-body-sm">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-primary font-bold">Random Forest (Ensemble n=150)</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider bg-primary text-on-primary px-space-xs py-0.5 rounded-full font-bold">Top Performer</span>
+</div>
+<span class="font-headline-sm text-headline-sm text-primary font-bold">0.664</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3.5 overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-700 relative" style="width: 66.4%;">
+<div class="absolute right-0 top-0 bottom-0 w-2 bg-on-primary/40 animate-pulse"></div>
+</div>
+</div>
+<div class="flex justify-between text-body-sm text-outline-variant font-label-sm pt-0.5">
+<span>Precision: 0.652 · Recall: 0.677</span>
+<span class="text-primary font-bold">ROC-AUC: 0.923</span>
+</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-space-sm pt-space-md text-center">
+<div class="p-space-xs bg-surface-container-low rounded-lg">
+<span class="font-label-sm text-label-sm text-outline uppercase block">Mean ROC-AUC</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-bold">0.891</span>
+</div>
+<div class="p-space-xs bg-surface-container-low rounded-lg">
+<span class="font-label-sm text-label-sm text-outline uppercase block">Best Accuracy</span>
+<span class="font-metric-tabular text-metric-tabular text-on-surface font-bold">89.4%</span>
+</div>
+<div class="p-space-xs bg-tertiary-container/10 rounded-lg">
+<span class="font-label-sm text-label-sm text-tertiary uppercase block font-semibold">RF Lift vs Baseline</span>
+<span class="font-metric-tabular text-metric-tabular text-tertiary font-bold">+12.2%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Key Findings Section (Clean card with 3 visual highlight boxes) -->
+<div class="rounded-xl bg-surface-container-lowest p-space-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-xs">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">lightbulb</span>
+</div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Key Research Findings</h2>
+<p class="font-body-md text-body-md text-secondary">Core insights deduced from cross-model evaluation &amp; feature attribution matrices</p>
+</div>
+</div>
+<span class="font-label-md text-label-md text-outline font-medium">Derived from 48 Empirical Trials</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Finding 1 -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low hover:bg-surface-container/70 transition-colors">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-primary shadow-xs">
+<span class="material-symbols-outlined text-[20px]">monetization_on</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-primary font-bold">Insight 01</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-secondary">SHAP Weight #1</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">PageValues is the Dominant Predictor</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Sessions with <code class="bg-surface-container px-1 rounded text-primary font-bold">PageValues &gt; 0</code> exhibit a <strong class="text-on-surface font-semibold">68% purchase conversion rate</strong> compared to &lt;4% for unmonetized sessions. It accounts for over 45% total relative feature importance.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm uppercase">Impact Magnitude</span>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold">Extreme (p &lt; 0.001)</span>
+</div>
+</div>
+<!-- Finding 2 -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low hover:bg-surface-container/70 transition-colors">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-tertiary shadow-xs">
+<span class="material-symbols-outlined text-[20px]">account_tree</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-tertiary font-bold">Insight 02</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-secondary">Variance Reduction</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Ensemble Methods Outperform Single Classifiers</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Random Forest achieved superior precision-recall balance (<strong class="text-on-surface font-semibold">F1: 0.664</strong>), substantially reducing false positives compared to standalone Decision Trees which suffered from decision-boundary overfitting.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm uppercase">Generalization Gap</span>
+<span class="font-metric-tabular text-metric-tabular text-tertiary font-bold">+0.075 F1 over CART</span>
+</div>
+</div>
+<!-- Finding 3 -->
+<div class="flex flex-col justify-between p-space-lg rounded-xl bg-surface-container-low hover:bg-surface-container/70 transition-colors">
+<div class="flex flex-col gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-surface-container-lowest flex items-center justify-center text-error shadow-xs">
+<span class="material-symbols-outlined text-[20px]">balance</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-error font-bold">Insight 03</span>
+<span class="w-1.5 h-1.5 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-secondary">Resampling Criticality</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Addressing Class Imbalance is Essential</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">
+              Without resampling or class weighting, standard models defaulted to predicting 'No Purchase' with <strong class="text-on-surface font-semibold">88% naive accuracy but near-zero minority recall (0.19)</strong>. SMOTE balanced sensitivity reliably.
+            </p>
+</div>
+<div class="mt-space-md pt-space-sm flex items-center justify-between text-outline">
+<span class="font-label-sm text-label-sm uppercase">Recall Recovery</span>
+<span class="font-metric-tabular text-metric-tabular text-error font-bold">+256% True Positives</span>
+</div>
+</div>
+</div>
+<!-- Quick Interactive Callout Bar for Viva Examiner -->
+<div class="p-space-md rounded-xl bg-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-primary text-[22px]">play_circle</span>
+<span class="font-body-md text-body-md text-on-surface font-medium">Ready to explore the dynamic inference engine with custom customer sessions?</span>
+</div>
+<div class="flex items-center gap-space-sm shrink-0">
+<a class="px-space-md py-2 rounded-lg bg-primary text-on-primary font-label-lg text-label-lg hover:bg-primary-container transition-colors shadow-sm inline-flex items-center gap-space-xs" href="#">
+<span>Launch Live Prediction</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

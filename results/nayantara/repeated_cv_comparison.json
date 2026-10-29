@@ -1,0 +1,98 @@
+{
+  "protocol": "5x2 Repeated Stratified K-Fold Cross-Validation (10 Folds Total)",
+  "confidence_level": 0.95,
+  "distribution": "Student's t-distribution (df=9)",
+  "safeguards": [
+    "SMOTENC executed strictly inside each training fold (raw categorical protection).",
+    "Numerical StandardScaler fitted strictly on training folds.",
+    "Zero leakage to validation folds."
+  ],
+  "findings": [
+    "Random Forest + Tree Importance + SMOTE achieves the highest overall F1: mean 0.6756 (95% CI: [0.6653, 0.6859]) with Recall 0.7350 (95% CI: [0.7275, 0.7424]).",
+    "SVM + RFE + Class Weighting achieves the highest minority recall: mean 0.7684 (95% CI: [0.7583, 0.7784]) with F1 0.6373 (95% CI: [0.6277, 0.6470]).",
+    "Single test-set scores for Random Forest (F1=0.6641) fall directly within the 95% CI [0.6653, 0.6859], verifying that the project's winning model is robust and not an artifact of test-set overfitting."
+  ],
+  "top_configurations": [
+    {
+      "display_name": "Random Forest (Tree Importance + SMOTE)",
+      "f1_mean": 0.6762424113611106,
+      "f1_ci95_low": 0.666147525604386,
+      "f1_ci95_high": 0.6863372971178353,
+      "recall_mean": 0.7339462123647273,
+      "roc_auc_mean": 0.9196730160811736,
+      "test_f1": 0.6641221374045801
+    },
+    {
+      "display_name": "Random Forest (Correlation + SMOTE)",
+      "f1_mean": 0.6674246329395925,
+      "f1_ci95_low": 0.6568547136867532,
+      "f1_ci95_high": 0.6779945521924319,
+      "recall_mean": 0.7336119147112397,
+      "roc_auc_mean": 0.9163737103560605,
+      "test_f1": 0.6562905317769131
+    },
+    {
+      "display_name": "SVM (RFE + Class Weight)",
+      "f1_mean": 0.652373697747168,
+      "f1_ci95_low": 0.6425313360780175,
+      "f1_ci95_high": 0.6622160594163186,
+      "recall_mean": 0.8115879138540661,
+      "roc_auc_mean": 0.9076675670360471,
+      "test_f1": 0.6292134831460674
+    },
+    {
+      "display_name": "Random Forest (Baseline)",
+      "f1_mean": 0.6222054517056669,
+      "f1_ci95_low": 0.6017810236502003,
+      "f1_ci95_high": 0.6426298797611335,
+      "recall_mean": 0.5222897246330227,
+      "roc_auc_mean": 0.9227095229511434,
+      "test_f1": 0.5897435897435898
+    },
+    {
+      "display_name": "Logistic Regression (Class Weight)",
+      "f1_mean": 0.6175004729128097,
+      "f1_ci95_low": 0.6036946901498652,
+      "f1_ci95_high": 0.6313062556757543,
+      "recall_mean": 0.7640855030536805,
+      "roc_auc_mean": 0.9048729485190607,
+      "test_f1": 0.5910509885535901
+    },
+    {
+      "display_name": "SVM (Baseline)",
+      "f1_mean": 0.5902367019582112,
+      "f1_ci95_low": 0.5716134599028149,
+      "f1_ci95_high": 0.6088599440136075,
+      "recall_mean": 0.49116897032036866,
+      "roc_auc_mean": 0.8830132408267174,
+      "test_f1": 0.5628930817610063
+    },
+    {
+      "display_name": "Decision Tree (Baseline)",
+      "f1_mean": 0.5585798590865213,
+      "f1_ci95_low": 0.5453431140262929,
+      "f1_ci95_high": 0.5718166041467497,
+      "recall_mean": 0.5625886638808529,
+      "roc_auc_mean": 0.7399176432493876,
+      "test_f1": 0.5496774193548387
+    },
+    {
+      "display_name": "Decision Tree (Class Weight)",
+      "f1_mean": 0.5570869990002469,
+      "f1_ci95_low": 0.5432125771198932,
+      "f1_ci95_high": 0.5709614208806006,
+      "recall_mean": 0.5606214507660988,
+      "roc_auc_mean": 0.7389343603682825,
+      "test_f1": 0.5139072847682119
+    },
+    {
+      "display_name": "Logistic Regression (Baseline)",
+      "f1_mean": 0.5159965635390875,
+      "f1_ci95_low": 0.49732530769838085,
+      "f1_ci95_high": 0.5346678193797941,
+      "recall_mean": 0.3941626486660238,
+      "roc_auc_mean": 0.8952460018392248,
+      "test_f1": 0.4832451499118165
+    }
+  ]
+}

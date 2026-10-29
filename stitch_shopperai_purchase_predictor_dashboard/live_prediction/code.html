@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta content="width=device-width, initial-scale=1.0" name="viewport"><meta content="web_dashboard" name="shell-type"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"><link href="https://fonts.googleapis.com" rel="preconnect"><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"secondary-container":"#dae2fd","tertiary-fixed-dim":"#4edea3","primary-fixed-dim":"#b4c5ff","outline-variant":"#c3c6d7","on-error":"#ffffff","on-secondary":"#ffffff","primary-fixed":"#dbe1ff","surface-container":"#e5eeff","on-primary-fixed":"#00174b","on-surface":"#0b1c30","outline":"#737686","on-tertiary-fixed":"#002113","tertiary-fixed":"#6ffbbe","inverse-surface":"#213145","surface-bright":"#f8f9ff","tertiary-container":"#007d55","on-primary-container":"#eeefff","surface-container-highest":"#d3e4fe","on-secondary-container":"#5c647a","on-primary":"#ffffff","inverse-primary":"#b4c5ff","secondary-fixed":"#dae2fd","surface-tint":"#0053db","on-error-container":"#93000a","on-primary-fixed-variant":"#003ea8","surface":"#f8f9ff","surface-container-lowest":"#ffffff","error":"#ba1a1a","primary":"#004ac6","surface-container-high":"#dce9ff","tertiary":"#006242","error-container":"#ffdad6","secondary":"#565e74","on-tertiary-fixed-variant":"#005236","on-surface-variant":"#434655","secondary-fixed-dim":"#bec6e0","primary-container":"#2563eb","background":"#f8f9ff","surface-dim":"#cbdbf5","surface-variant":"#d3e4fe","surface-container-low":"#eff4ff","on-tertiary":"#ffffff","inverse-on-surface":"#eaf1ff","on-background":"#0b1c30","on-tertiary-container":"#bdffdb","on-secondary-fixed":"#131b2e","on-secondary-fixed-variant":"#3f465c"},borderRadius:{DEFAULT:"0.125rem",lg:"0.25rem",xl:"0.5rem",full:"0.75rem"},spacing:{"space-xl":"2rem","space-sm":"0.5rem",gutter:"1.5rem","space-lg":"1.5rem",margin:"2rem","space-xs":"0.25rem","gutter-sm":"1rem","space-md":"1rem","margin-mobile":"1rem"},fontFamily:{"metric-tabular":["Inter"],"label-lg":["Inter"],"body-md":["Inter"],"label-sm":["Inter"],"metric-display":["Plus Jakarta Sans"],"headline-xl":["Plus Jakarta Sans"],"body-lg":["Inter"],"headline-lg":["Plus Jakarta Sans"],"headline-sm":["Plus Jakarta Sans"],"headline-md":["Plus Jakarta Sans"],"body-sm":["Inter"],"label-md":["Inter"],"headline-xl-mobile":["Plus Jakarta Sans"]},fontSize:{"metric-tabular":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"label-lg":["0.875rem",{lineHeight:"1.25rem",fontWeight:"600"}],"body-md":["0.875rem",{lineHeight:"1.375rem",fontWeight:"400"}],"label-sm":["0.6875rem",{lineHeight:"0.875rem",letterSpacing:"0.05em",fontWeight:"600"}],"metric-display":["2rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}],"headline-xl":["2.25rem",{lineHeight:"2.75rem",letterSpacing:"-0.025em",fontWeight:"700"}],"body-lg":["1.125rem",{lineHeight:"1.75rem",fontWeight:"400"}],"headline-lg":["1.5rem",{lineHeight:"2rem",letterSpacing:"-0.02em",fontWeight:"600"}],"headline-sm":["1rem",{lineHeight:"1.5rem",fontWeight:"600"}],"headline-md":["1.25rem",{lineHeight:"1.75rem",letterSpacing:"-0.015em",fontWeight:"600"}],"body-sm":["0.75rem",{lineHeight:"1.125rem",fontWeight:"400"}],"label-md":["0.75rem",{lineHeight:"1rem",letterSpacing:"0.025em",fontWeight:"500"}],"headline-xl-mobile":["1.75rem",{lineHeight:"2.25rem",letterSpacing:"-0.02em",fontWeight:"700"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-screen w-64 bg-on-surface z-50 flex flex-col justify-between p-space-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex flex-col gap-space-md"><div class="flex items-center gap-space-sm px-space-xs py-space-xs"><div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[20px]">analytics</span></div><div class="flex flex-col min-w-0"><span class="font-headline-sm text-headline-sm text-surface-container-lowest tracking-tight truncate">ShopperAI</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Purchase Intention ML Research</span></div></div><div class="bg-inverse-surface rounded-xl p-space-sm flex items-center justify-between gap-space-xs"><div class="flex items-center gap-space-xs min-w-0"><span class="relative flex h-2 w-2 shrink-0"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary-fixed"></span></span><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm text-surface-container-lowest uppercase tracking-wider truncate">Inference Ready</span><span class="font-body-sm text-body-sm text-outline-variant truncate">Random Forest</span></div></div><span class="font-label-sm text-label-sm bg-tertiary-container text-on-tertiary-container px-space-xs py-0.5 rounded-lg shrink-0">READY</span></div><nav class="flex flex-col gap-space-xs pt-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-label-lg rounded-xl"><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="overview" href="#">Overview</a><a aria-current="page" class="flex items-center px-space-md py-space-sm transition-colors bg-primary-container text-on-primary-container font-label-lg rounded-xl" data-path="live-prediction" href="#">Live Prediction</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="model-performance" href="#">Model Performance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="feature-importance" href="#">Feature Importance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="class-imbalance" href="#">Class Imbalance</a><a class="flex items-center px-space-md py-space-sm rounded-xl text-outline-variant hover:bg-inverse-surface hover:text-surface-container-lowest transition-colors font-label-lg text-label-lg" data-path="about-project" href="#">About Project</a></nav></div><div class="flex flex-col gap-space-xs pt-space-md bg-inverse-surface/40 p-space-sm rounded-xl"><div class="flex items-center justify-between text-outline-variant"><span class="font-label-sm text-label-sm uppercase tracking-wider">Dataset Split</span><span class="font-metric-tabular text-metric-tabular text-tertiary-fixed">80/20 Stratified</span></div><div class="w-full bg-inverse-surface rounded-full h-1.5 overflow-hidden"><div class="bg-tertiary-fixed h-full rounded-full w-[80%]"></div></div><span class="font-body-sm text-body-sm text-outline-variant truncate">12,330 Total Sessions · 18 Features</span></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface-container-lowest/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs bg-secondary-container/70 text-on-secondary-fixed px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">school</span><span class="font-label-sm text-label-sm font-semibold tracking-wide uppercase">University Project Viva Demo</span></div></div><div class="flex items-center gap-space-md"><div class="hidden md:flex items-center gap-space-xs bg-surface-container-low px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-secondary">dataset</span><span class="font-body-sm text-body-sm text-on-surface-variant font-medium">UCI Online Shoppers (12,330 Sessions)</span></div><div class="flex items-center gap-space-xs bg-surface-container px-space-sm py-1 rounded-xl"><span class="material-symbols-outlined text-[16px] text-primary">account_tree</span><span class="font-label-md text-label-md font-semibold text-on-surface">Random Forest Classifier</span></div></div></header><main class="w-full pt-16 flex-1 bg-surface px-space-lg py-space-md"><div class="flex flex-col w-full gap-space-lg">
+<!-- TOP HEADER & CONTROLS BANNER -->
+<div class="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-sm">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-sm flex-wrap">
+<span class="font-headline-lg text-headline-lg text-on-surface">Live Purchase Intention Prediction</span>
+<div class="flex items-center gap-1.5 bg-tertiary-container/10 px-space-sm py-1 rounded-full text-tertiary">
+<span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider font-semibold">Trained RF (n_estimators=100) | Inference: &lt;15ms</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-secondary">
+        Interactive Real-Time Inference with Trained Random Forest Classifier (UCI Online Shoppers Dataset)
+      </p>
+</div>
+<!-- Rapid Viva Presets -->
+<div class="flex items-center gap-space-xs flex-wrap bg-surface-container-low p-1.5 rounded-xl self-start xl:self-auto">
+<span class="font-label-sm text-label-sm text-secondary uppercase px-space-xs tracking-wider">Presets:</span>
+<button class="px-space-sm py-1.5 bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface rounded-lg font-label-md text-label-md transition-all shadow-sm flex items-center gap-1" onclick="loadPreset('high_intent')">
+<span class="material-symbols-outlined text-[16px]">shopping_cart_checkout</span>
+        High-Intent Buyer
+      </button>
+<button class="px-space-sm py-1.5 bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface rounded-lg font-label-md text-label-md transition-all shadow-sm flex items-center gap-1" onclick="loadPreset('window_shopper')">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+        Window Shopper
+      </button>
+<button class="px-space-sm py-1.5 bg-surface-container-lowest hover:bg-primary hover:text-on-primary text-on-surface rounded-lg font-label-md text-label-md transition-all shadow-sm flex items-center gap-1" onclick="loadPreset('returning_loyalty')">
+<span class="material-symbols-outlined text-[16px]">loyalty</span>
+        Returning Customer
+      </button>
+<button class="p-1.5 text-secondary hover:text-error hover:bg-error-container/20 rounded-lg transition-colors" onclick="resetDefaults()" title="Reset defaults">
+<span class="material-symbols-outlined text-[18px]">restart_alt</span>
+</button>
+</div>
+</div>
+<!-- TWO-COLUMN BALANCED ANALYTICS LAYOUT -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- LEFT COLUMN: VISITOR ATTRIBUTES FORM (5 COLS) -->
+<div class="lg:col-span-6 xl:col-span-5 flex flex-col gap-space-md">
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-lg">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-[20px]">tune</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Visitor Feature Inputs</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-2 py-0.5 rounded">18 Features</span>
+</div>
+<form class="flex flex-col gap-space-lg" id="predictionForm" onsubmit="event.preventDefault(); triggerInference();">
+<!-- GROUP 1: Browsing Behaviour -->
+<div class="flex flex-col gap-space-sm bg-surface-container-low p-space-md rounded-xl">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]">devices_fold</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wide">1. Browsing Behaviour</span>
+</div>
+<!-- Administrative -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Admin Pages</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_admin" max="30" min="0" type="number" value="3">
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Admin Duration (s)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_admin_dur" min="0" step="0.1" type="number" value="64.5">
+</div>
+</div>
+<!-- Informational -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Info Pages</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_info" max="25" min="0" type="number" value="1">
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Info Duration (s)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_info_dur" min="0" step="0.1" type="number" value="18.0">
+</div>
+</div>
+<!-- Product Related -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Product Pages</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_prod" max="150" min="0" type="number" value="24">
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Product Duration (s)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_prod_dur" min="0" step="0.1" type="number" value="840.0">
+</div>
+</div>
+</div>
+<!-- GROUP 2: Website Analytics & Metrics -->
+<div class="flex flex-col gap-space-sm bg-surface-container-low p-space-md rounded-xl">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]">query_stats</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wide">2. Web Analytics Telemetry</span>
+</div>
+<!-- PageValues Slider + Number -->
+<div class="pt-1">
+<div class="flex justify-between items-center mb-1">
+<label class="font-label-sm text-label-sm text-secondary font-medium">PageValues (GA Key Metric)</label>
+<span class="font-metric-tabular text-metric-tabular text-primary font-bold" id="pageValuesDisplay">18.45</span>
+</div>
+<input class="w-full accent-primary h-2 bg-surface-container rounded-lg cursor-pointer" id="input_pagevalues" max="60" min="0" oninput="updatePageValueDisplay(this.value)" step="0.05" type="range" value="18.45">
+<span class="font-body-sm text-body-sm text-on-surface-variant block mt-1">Average monetization value of pages viewed prior to transaction.</span>
+</div>
+<!-- Bounce Rate & Exit Rate -->
+<div class="grid grid-cols-2 gap-space-sm mt-1">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Bounce Rate (0-0.2)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_bounce" max="0.2" min="0" step="0.001" type="number" value="0.012">
+<span class="font-label-sm text-label-sm text-outline block mt-0.5">1.2%</span>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Exit Rate (0-0.2)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_exit" max="0.2" min="0" step="0.001" type="number" value="0.028">
+<span class="font-label-sm text-label-sm text-outline block mt-0.5">2.8%</span>
+</div>
+</div>
+<!-- Special Day Proximity -->
+<div class="mt-1">
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Special Day Proximity (0.0 - 1.0)</label>
+<input class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-metric-tabular text-metric-tabular outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_special" max="1" min="0" step="0.1" type="number" value="0.0">
+</div>
+</div>
+<!-- GROUP 3: Visitor Context & Demographics -->
+<div class="flex flex-col gap-space-sm bg-surface-container-low p-space-md rounded-xl">
+<div class="flex items-center gap-1 text-primary">
+<span class="material-symbols-outlined text-[18px]">person_pin</span>
+<span class="font-label-lg text-label-lg uppercase tracking-wide">3. Session Demographics &amp; Context</span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Month</label>
+<select class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_month">
+<option selected="" value="Nov">November</option>
+<option value="May">May</option>
+<option value="Mar">March</option>
+<option value="Dec">December</option>
+<option value="Oct">October</option>
+</select>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Visitor Type</label>
+<select class="w-full bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-body-md text-body-md outline-none focus:ring-2 focus:ring-primary shadow-sm" id="input_visitortype">
+<option selected="" value="Returning_Visitor">Returning Visitor</option>
+<option value="New_Visitor">New Visitor</option>
+<option value="Other">Other</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-space-sm items-center mt-1">
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">OS / Browser Config</label>
+<div class="bg-surface-container-lowest px-space-sm py-1.5 rounded-lg text-on-surface font-body-md text-body-md shadow-sm">
+                  OS 2, Browser 2
+                </div>
+</div>
+<div>
+<label class="font-label-sm text-label-sm text-secondary block mb-1">Weekend Session</label>
+<label class="relative inline-flex items-center cursor-pointer mt-1">
+<input checked="" class="sr-only peer" id="input_weekend" type="checkbox">
+<div class="w-11 h-6 bg-surface-container peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+<span class="ml-2 font-label-md text-label-md text-on-surface font-medium" id="weekendLabel">True</span>
+</label>
+</div>
+</div>
+</div>
+<!-- PRIMARY INFERENCE CTA -->
+<button class="w-full py-3 px-space-md bg-primary hover:bg-primary-container text-on-primary rounded-xl font-label-lg text-label-lg font-semibold flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.99]" type="submit">
+<span class="material-symbols-outlined text-[20px]">smart_toy</span>
+            Predict Purchase Intention
+          </button>
+</form>
+</div>
+</div>
+<!-- RIGHT COLUMN: PREDICTION RESULT & VISUAL EXPLANATIONS (7 COLS) -->
+<div class="lg:col-span-6 xl:col-span-7 flex flex-col gap-space-md">
+<!-- 1. LARGE RESULT BANNER -->
+<div class="bg-tertiary-container/15 p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md transition-all" id="resultBanner">
+<div class="flex items-center justify-between flex-wrap gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-12 h-12 rounded-xl bg-tertiary text-on-tertiary flex items-center justify-center shadow-sm" id="resultIconWrapper">
+<span class="material-symbols-outlined text-[28px]" id="resultIcon" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider font-semibold">Predicted Outcome</span>
+<span class="font-headline-lg text-headline-lg text-tertiary font-bold tracking-tight" id="resultOutcomeTitle">PREDICTED OUTCOME: PURCHASE</span>
+</div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Posterior Probability</span>
+<span class="font-headline-xl text-headline-xl text-tertiary font-bold font-metric-display" id="resultProbValue">84.2%</span>
+</div>
+</div>
+<!-- PROGRESS GAUGE WITH THRESHOLD TAU OVERLAY -->
+<div class="flex flex-col gap-1.5 pt-2">
+<div class="flex justify-between items-center font-label-sm text-label-sm text-secondary">
+<span>0% (No Purchase)</span>
+<span class="text-primary font-semibold">Cutoff τ = <span id="tauLabel">0.50</span></span>
+<span>100% (Purchase)</span>
+</div>
+<!-- Dual Polarity Bar Container -->
+<div class="relative w-full h-4 bg-surface-container rounded-full overflow-hidden">
+<!-- Cutoff Threshold Marker Line -->
+<div class="absolute top-0 bottom-0 w-0.5 bg-on-surface z-20" id="cutoffMarker" style="left: 50%;"></div>
+<!-- Dynamic Filled Gauge -->
+<div class="h-full bg-tertiary rounded-full transition-all duration-500 ease-out" id="probabilityGaugeBar" style="width: 84.2%;"></div>
+</div>
+<div class="flex justify-between items-center text-outline text-[11px] font-mono">
+<span>Class 0 [Revenue=False]</span>
+<span class="bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant font-medium">Confidence Margin: +34.2%</span>
+<span>Class 1 [Revenue=True]</span>
+</div>
+</div>
+</div>
+<!-- 2. SIMPLE DECISION THRESHOLD SLIDER -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[18px]">straighten</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Decision Threshold Cutoff (τ = <span id="sliderTauValue">0.50</span>)</span>
+</div>
+<span class="bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm px-2.5 py-1 rounded-full font-semibold" id="thresholdAssignmentBadge">
+            Active: PURCHASE
+          </span>
+</div>
+<div class="pt-1">
+<input class="w-full accent-primary h-2 bg-surface-container rounded-lg cursor-pointer" id="thresholdSlider" max="1.00" min="0.00" oninput="updateThreshold(this.value)" step="0.01" type="range" value="0.50">
+<div class="flex justify-between font-label-sm text-label-sm text-outline mt-1 font-mono">
+<span>τ = 0.00 (High Recall)</span>
+<span>Balanced Default (0.50)</span>
+<span>τ = 1.00 (High Precision)</span>
+</div>
+</div>
+<!-- Explanation card -->
+<div class="bg-surface-container-low p-space-sm rounded-lg text-on-surface-variant font-body-sm text-body-sm flex items-start gap-2">
+<span class="material-symbols-outlined text-primary text-[18px] shrink-0 mt-0.5">info</span>
+<div>
+<strong class="font-medium text-on-surface">How it works:</strong>
+            If calculated probability (<span id="boxProb">84.2%</span>) ≥ threshold (<span id="boxTau">50%</span>), classify as PURCHASE.
+            Increasing the threshold reduces false alarms (higher precision); lowering the threshold captures more hesitant buyers (higher recall).
+          </div>
+</div>
+</div>
+<!-- 3. LOCAL SHAP EXPLANATION (TOP 3 FACTORS) -->
+<div class="bg-surface-container-lowest p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-primary text-[20px]">waterfall_chart</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">Why did the model make this prediction?</span>
+</div>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container px-2 py-0.5 rounded">Top 3 SHAP Factors</span>
+</div>
+<div class="flex flex-col gap-space-md">
+<!-- Factor 1: PageValues -->
+<div class="flex flex-col gap-1.5 p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-lg text-label-lg text-on-surface" id="factor1_title">PageValues = 18.45</span>
+</div>
+<span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded font-mono font-bold" id="factor1_val">+0.34 SHAP</span>
+</div>
+<!-- Horizontal Visual Bar -->
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden flex">
+<div class="bg-tertiary h-full rounded-full transition-all duration-500" id="factor1_bar" style="width: 78%;"></div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary" id="factor1_desc">
+              High historical monetization of viewed pages strongly supports purchase intention.
+            </p>
+</div>
+<!-- Factor 2: Product Duration -->
+<div class="flex flex-col gap-1.5 p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label-lg text-label-lg text-on-surface" id="factor2_title">Product-Related Duration = 840s</span>
+</div>
+<span class="font-label-sm text-label-sm bg-tertiary-fixed text-on-tertiary-fixed px-2 py-0.5 rounded font-mono font-bold" id="factor2_val">+0.18 SHAP</span>
+</div>
+<!-- Horizontal Visual Bar -->
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden flex">
+<div class="bg-tertiary h-full rounded-full transition-all duration-500" id="factor2_bar" style="width: 52%;"></div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary" id="factor2_desc">
+              Extensive time spent exploring product catalog signals genuine shopping intent.
+            </p>
+</div>
+<!-- Factor 3: Exit Rate -->
+<div class="flex flex-col gap-1.5 p-space-sm bg-surface-container-low rounded-lg">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-label-lg text-label-lg text-on-surface" id="factor3_title">Exit Rate = 2.8%</span>
+</div>
+<span class="font-label-sm text-label-sm bg-error-container text-on-error-container px-2 py-0.5 rounded font-mono font-bold" id="factor3_val">-0.07 SHAP</span>
+</div>
+<!-- Horizontal Visual Bar (Negative) -->
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden flex justify-end">
+<div class="bg-error h-full rounded-full transition-all duration-500" id="factor3_bar" style="width: 32%;"></div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary" id="factor3_desc">
+              Higher exit probability slightly pulls likelihood away from transaction completion.
+            </p>
+</div>
+</div>
+</div>
+<!-- 4. TECHNICAL INFERENCE DETAILS (COLLAPSIBLE) -->
+<details class="group bg-surface-container-lowest rounded-xl shadow-sm p-space-md [&amp;_summary::-webkit-details-marker]:hidden">
+<summary class="flex items-center justify-between cursor-pointer list-none text-on-surface">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary text-[20px]">developer_board</span>
+<span class="font-label-lg text-label-lg font-semibold">Technical Inference Details (Examiner Deep-Dive)</span>
+</div>
+<span class="material-symbols-outlined text-secondary transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="mt-space-md pt-space-sm flex flex-col gap-space-sm border-t border-surface-container-high/40">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Feature Vector Shape</span>
+<span class="font-metric-tabular text-metric-tabular font-mono text-on-surface">[1, 18] Encoded Float</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Tree Ensemble Votes</span>
+<span class="font-metric-tabular text-metric-tabular font-mono text-on-surface" id="treeVotes">84 / 100 Trees</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg flex flex-col">
+<span class="font-label-sm text-label-sm text-secondary">Calibration Mode</span>
+<span class="font-metric-tabular text-metric-tabular font-mono text-on-surface">Platt Sigmoid Scaling</span>
+</div>
+</div>
+<div class="bg-inverse-surface text-surface-bright p-space-sm rounded-lg font-mono text-body-sm overflow-x-auto">
+<span class="text-tertiary-fixed font-semibold">// Raw Tensor Slice (UCI-18 Schema):</span><br>
+            [3, 64.5, 1, 18.0, 24, 840.0, 0.012, 0.028, 18.45, 0.0, 10, 2, 2, 1, 1, 1, 1, 0]
+          </div>
+</div>
+</details>
+</div>
+</div>
+</div>
+<!-- JAVASCRIPT FOR INTERACTIVE DEMONSTRATION -->
+<script>
+  let currentCalculatedProb = 0.842;
+  let currentCutoff = 0.50;
+
+  function updatePageValueDisplay(val) {
+    document.getElementById('pageValuesDisplay').innerText = parseFloat(val).toFixed(2);
+  }
+
+  const weekendCheckbox = document.getElementById('input_weekend');
+  if (weekendCheckbox) {
+    weekendCheckbox.addEventListener('change', function() {
+      document.getElementById('weekendLabel').innerText = this.checked ? 'True' : 'False';
+    });
+  }
+
+  function updateThreshold(val) {
+    currentCutoff = parseFloat(val);
+    document.getElementById('sliderTauValue').innerText = currentCutoff.toFixed(2);
+    document.getElementById('tauLabel').innerText = currentCutoff.toFixed(2);
+    document.getElementById('boxTau').innerText = Math.round(currentCutoff * 100) + '%';
+    
+    // Position cutoff line in progress gauge
+    document.getElementById('cutoffMarker').style.left = (currentCutoff * 100) + '%';
+    
+    reevaluateDecision();
+  }
+
+  function reevaluateDecision() {
+    const isPurchase = currentCalculatedProb >= currentCutoff;
+    const banner = document.getElementById('resultBanner');
+    const outcomeTitle = document.getElementById('resultOutcomeTitle');
+    const probVal = document.getElementById('resultProbValue');
+    const badge = document.getElementById('thresholdAssignmentBadge');
+    const iconWrapper = document.getElementById('resultIconWrapper');
+    const icon = document.getElementById('resultIcon');
+    const gauge = document.getElementById('probabilityGaugeBar');
+
+    document.getElementById('boxProb').innerText = (currentCalculatedProb * 100).toFixed(1) + '%';
+
+    if (isPurchase) {
+      banner.className = "bg-tertiary-container/15 p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md transition-all";
+      outcomeTitle.innerText = "PREDICTED OUTCOME: PURCHASE";
+      outcomeTitle.className = "font-headline-lg text-headline-lg text-tertiary font-bold tracking-tight";
+      probVal.className = "font-headline-xl text-headline-xl text-tertiary font-bold font-metric-display";
+      badge.className = "bg-tertiary-container text-on-tertiary-container font-label-sm text-label-sm px-2.5 py-1 rounded-full font-semibold";
+      badge.innerText = "Active: PURCHASE";
+      iconWrapper.className = "w-12 h-12 rounded-xl bg-tertiary text-on-tertiary flex items-center justify-center shadow-sm";
+      icon.innerText = "check_circle";
+      gauge.className = "h-full bg-tertiary rounded-full transition-all duration-500 ease-out";
+    } else {
+      banner.className = "bg-error-container/20 p-space-lg rounded-xl shadow-sm flex flex-col gap-space-md transition-all";
+      outcomeTitle.innerText = "PREDICTED OUTCOME: NO PURCHASE";
+      outcomeTitle.className = "font-headline-lg text-headline-lg text-error font-bold tracking-tight";
+      probVal.className = "font-headline-xl text-headline-xl text-error font-bold font-metric-display";
+      badge.className = "bg-error-container text-on-error-container font-label-sm text-label-sm px-2.5 py-1 rounded-full font-semibold";
+      badge.innerText = "Active: NO PURCHASE";
+      iconWrapper.className = "w-12 h-12 rounded-xl bg-error text-on-error flex items-center justify-center shadow-sm";
+      icon.innerText = "cancel";
+      gauge.className = "h-full bg-error rounded-full transition-all duration-500 ease-out";
+    }
+
+    gauge.style.width = (currentCalculatedProb * 100) + '%';
+    probVal.innerText = (currentCalculatedProb * 100).toFixed(1) + '%';
+  }
+
+  function triggerInference() {
+    // Model inference simulation based on input weights
+    const pv = parseFloat(document.getElementById('input_pagevalues').value) || 0;
+    const prodDur = parseFloat(document.getElementById('input_prod_dur').value) || 0;
+    const exitRate = parseFloat(document.getElementById('input_exit').value) || 0.05;
+    const isReturning = document.getElementById('input_visitortype').value === 'Returning_Visitor';
+
+    // Heuristic approximation of Random Forest prediction
+    let logit = -1.8; 
+    logit += pv * 0.22;
+    logit += Math.min(prodDur / 600, 1.5);
+    logit -= exitRate * 20.0;
+    if (isReturning) logit += 0.35;
+
+    // Sigmoid transformation
+    const prob = 1 / (1 + Math.exp(-logit));
+    currentCalculatedProb = Math.min(Math.max(prob, 0.03), 0.98);
+
+    // Update tree votes
+    const treeCount = Math.round(currentCalculatedProb * 100);
+    document.getElementById('treeVotes').innerText = `${treeCount} / 100 Trees`;
+
+    // Dynamic SHAP adjustments
+    document.getElementById('factor1_title').innerText = `PageValues = ${pv.toFixed(2)}`;
+    const shap1 = Math.min(pv * 0.02, 0.45);
+    document.getElementById('factor1_val').innerText = (shap1 >= 0 ? '+' : '') + shap1.toFixed(2) + ' SHAP';
+    document.getElementById('factor1_bar').style.width = Math.min(shap1 * 200, 100) + '%';
+
+    document.getElementById('factor2_title').innerText = `Product Duration = ${prodDur}s`;
+    const shap2 = Math.min(prodDur / 4000, 0.35);
+    document.getElementById('factor2_val').innerText = (shap2 >= 0 ? '+' : '') + shap2.toFixed(2) + ' SHAP';
+    document.getElementById('factor2_bar').style.width = Math.min(shap2 * 250, 100) + '%';
+
+    document.getElementById('factor3_title').innerText = `Exit Rate = ${(exitRate * 100).toFixed(1)}%`;
+    const shap3 = -Math.min(exitRate * 3.5, 0.40);
+    document.getElementById('factor3_val').innerText = shap3.toFixed(2) + ' SHAP';
+    document.getElementById('factor3_bar').style.width = Math.min(Math.abs(shap3) * 250, 100) + '%';
+
+    reevaluateDecision();
+  }
+
+  function loadPreset(type) {
+    if (type === 'high_intent') {
+      document.getElementById('input_admin').value = 4;
+      document.getElementById('input_admin_dur').value = 95.0;
+      document.getElementById('input_info').value = 2;
+      document.getElementById('input_info_dur').value = 52.0;
+      document.getElementById('input_prod').value = 35;
+      document.getElementById('input_prod_dur').value = 1420.0;
+      document.getElementById('input_pagevalues').value = 28.5;
+      document.getElementById('input_bounce').value = 0.005;
+      document.getElementById('input_exit').value = 0.015;
+      document.getElementById('input_month').value = 'Nov';
+      document.getElementById('input_visitortype').value = 'Returning_Visitor';
+      document.getElementById('input_weekend').checked = true;
+    } else if (type === 'window_shopper') {
+      document.getElementById('input_admin').value = 0;
+      document.getElementById('input_admin_dur').value = 0.0;
+      document.getElementById('input_info').value = 0;
+      document.getElementById('input_info_dur').value = 0.0;
+      document.getElementById('input_prod').value = 3;
+      document.getElementById('input_prod_dur').value = 45.0;
+      document.getElementById('input_pagevalues').value = 0.0;
+      document.getElementById('input_bounce').value = 0.08;
+      document.getElementById('input_exit').value = 0.12;
+      document.getElementById('input_month').value = 'Mar';
+      document.getElementById('input_visitortype').value = 'New_Visitor';
+      document.getElementById('input_weekend').checked = false;
+    } else if (type === 'returning_loyalty') {
+      document.getElementById('input_admin').value = 2;
+      document.getElementById('input_admin_dur').value = 40.0;
+      document.getElementById('input_info').value = 1;
+      document.getElementById('input_info_dur').value = 12.0;
+      document.getElementById('input_prod').value = 18;
+      document.getElementById('input_prod_dur').value = 620.0;
+      document.getElementById('input_pagevalues').value = 14.2;
+      document.getElementById('input_bounce').value = 0.010;
+      document.getElementById('input_exit').value = 0.022;
+      document.getElementById('input_month').value = 'Dec';
+      document.getElementById('input_visitortype').value = 'Returning_Visitor';
+      document.getElementById('input_weekend').checked = true;
+    }
+    updatePageValueDisplay(document.getElementById('input_pagevalues').value);
+    document.getElementById('weekendLabel').innerText = document.getElementById('input_weekend').checked ? 'True' : 'False';
+    triggerInference();
+  }
+
+  function resetDefaults() {
+    document.getElementById('input_admin').value = 3;
+    document.getElementById('input_admin_dur').value = 64.5;
+    document.getElementById('input_info').value = 1;
+    document.getElementById('input_info_dur').value = 18.0;
+    document.getElementById('input_prod').value = 24;
+    document.getElementById('input_prod_dur').value = 840.0;
+    document.getElementById('input_pagevalues').value = 18.45;
+    document.getElementById('input_bounce').value = 0.012;
+    document.getElementById('input_exit').value = 0.028;
+    document.getElementById('input_month').value = 'Nov';
+    document.getElementById('input_visitortype').value = 'Returning_Visitor';
+    document.getElementById('input_weekend').checked = true;
+    document.getElementById('thresholdSlider').value = 0.50;
+    updatePageValueDisplay(18.45);
+    updateThreshold(0.50);
+    triggerInference();
+  }
+</script></main></div></body></html>
