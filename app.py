@@ -34,6 +34,7 @@ ROOT = Path(__file__).resolve().parent
 RES  = ROOT / "results" / "nayantara"
 DATA = ROOT / "data" / "processed"
 FIGS = ROOT / "figures" / "nayantara"
+FIGS_DISHITA = ROOT / "figures" / "dishita"
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CSS — Stitch palette + typography
@@ -554,6 +555,8 @@ def explain_session(raw_session: dict[str, Any]) -> dict[str, Any]:
         "neg_drivers": neg_drivers,
         "base_value": float(base_val)
     }
+
+compute_individual_shap = explain_session
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Navigation & Welcome Intro state
@@ -1402,6 +1405,91 @@ def render_live_prediction() -> None:
   </div>
 </div>""", unsafe_allow_html=True)
 
+            # Local SHAP Prediction Attribution (Top 3 Positive & Top 3 Negative Drivers)
+            try:
+                explanation = compute_individual_shap(raw_session)
+                pos_top3 = explanation["pos_drivers"].head(3)
+                neg_top3 = explanation["neg_drivers"].head(3)
+                base_prior = explanation["base_value"] * 100
+                shap_ready = True
+            except Exception as shap_err:
+                shap_ready = False
+
+            if shap_ready:
+                st.markdown(f"""
+<div style="background:var(--surface-bright);border-radius:var(--radius-lg);padding:16px 20px;margin-top:14px;box-shadow:0 1px 6px rgba(0,0,0,0.06);border:1px solid var(--outline-var);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+    <div>
+      <div style="font-family:var(--font-head);font-size:0.95rem;font-weight:700;color:var(--on-surface);">
+        Prediction Drivers (SHAP Local Attribution)
+      </div>
+      <div style="font-size:0.75rem;color:var(--secondary);">
+        Additive feature contributions displacing probability from model prior baseline ({base_prior:.1f}%)
+      </div>
+    </div>
+    <span class="viva-pill" style="font-size:0.62rem;background:rgba(0,74,198,0.1);color:var(--primary) !important;">Tree SHAP Attribution</span>
+  </div>
+""", unsafe_allow_html=True)
+                sc_pos, sc_neg = st.columns(2, gap="medium")
+                with sc_pos:
+                    st.markdown("""
+<div style="background:rgba(0,98,66,0.05);border-radius:var(--radius-md);padding:12px 14px;border:1px solid rgba(0,98,66,0.15);height:100%;">
+  <div style="font-family:var(--font-head);font-size:0.82rem;font-weight:700;color:var(--tertiary);margin-bottom:8px;display:flex;justify-content:space-between;">
+    <span>▲ Top 3 Positive Drivers</span>
+    <span style="font-size:0.65rem;background:rgba(0,98,66,0.12);padding:1px 6px;border-radius:3px;">+Δ Toward Purchase</span>
+  </div>
+""", unsafe_allow_html=True)
+                    if len(pos_top3) > 0:
+                        for _, r in pos_top3.iterrows():
+                            val_shift = r['shap_value'] * 100
+                            st.markdown(f"""
+  <div style="margin-bottom:6px;">
+    <div style="display:flex;justify-content:space-between;font-size:0.74rem;margin-bottom:2px;">
+      <span style="font-weight:600;color:var(--on-surface);">{r['clean_feature']}</span>
+      <span style="font-family:var(--font-head);font-weight:700;color:var(--tertiary);">+{val_shift:.1f}%</span>
+    </div>
+    <div class="bar-track" style="height:5px;">
+      <div class="bar-fill" style="width:{min(val_shift*3, 100):.1f}%;background:var(--tertiary);"></div>
+    </div>
+  </div>
+""", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div style='font-size:0.73rem;color:var(--secondary);'>No positive driver displaced probability for this session.</div>", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                with sc_neg:
+                    st.markdown("""
+<div style="background:rgba(186,26,26,0.05);border-radius:var(--radius-md);padding:12px 14px;border:1px solid rgba(186,26,26,0.15);height:100%;">
+  <div style="font-family:var(--font-head);font-size:0.82rem;font-weight:700;color:var(--error);margin-bottom:8px;display:flex;justify-content:space-between;">
+    <span>▼ Top 3 Negative Drivers</span>
+    <span style="font-size:0.65rem;background:rgba(186,26,26,0.12);padding:1px 6px;border-radius:3px;">-Δ Suppressing Intent</span>
+  </div>
+""", unsafe_allow_html=True)
+                    if len(neg_top3) > 0:
+                        for _, r in neg_top3.iterrows():
+                            val_shift = abs(r['shap_value']) * 100
+                            st.markdown(f"""
+  <div style="margin-bottom:6px;">
+    <div style="display:flex;justify-content:space-between;font-size:0.74rem;margin-bottom:2px;">
+      <span style="font-weight:600;color:var(--on-surface);">{r['clean_feature']}</span>
+      <span style="font-family:var(--font-head);font-weight:700;color:var(--error);">-{val_shift:.1f}%</span>
+    </div>
+    <div class="bar-track" style="height:5px;">
+      <div class="bar-fill" style="width:{min(val_shift*3, 100):.1f}%;background:var(--error);"></div>
+    </div>
+  </div>
+""", unsafe_allow_html=True)
+                    else:
+                        st.markdown("<div style='font-size:0.73rem;color:var(--secondary);'>No negative driver displaced probability for this session.</div>", unsafe_allow_html=True)
+                    st.markdown("</div>", unsafe_allow_html=True)
+
+                st.markdown(f"""
+  <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 14px;margin-top:12px;font-size:0.73rem;color:var(--on-surface-var);line-height:1.45;">
+    ℹ️ <strong>Statistical Interpretation:</strong> SHAP (SHapley Additive exPlanations) values quantify each feature's marginal displacement of the predicted probability away from the base value ({base_prior:.1f}%), derived from cooperative game theory. Positive values push the probability toward purchase, while negative values suppress it. These reflect the model's learned associations and do not represent causal effects in customer psychology.
+  </div>
+</div>
+""", unsafe_allow_html=True)
+
             with st.expander("🔬 Technical Inference Details (Examiner Deep-Dive)"):
                 d1, d2, d3 = st.columns(3)
                 with d1:
@@ -1613,6 +1701,9 @@ def render_model_performance() -> None:
 </div>
 """, unsafe_allow_html=True)
 
+        roc_fig_path = FIGS / "roc_auc_by_model.png"
+        if roc_fig_path.exists():
+            st.image(str(roc_fig_path), caption="ROC-AUC Curves by Model (Generated by experiments)", use_container_width=True)
         st.markdown("""
   <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 12px;margin-top:14px;font-size:0.73rem;color:var(--on-surface-var);line-height:1.45;">
     💡 <strong>Examiner Note:</strong> ROC-AUC measures ranking discrimination across all classification thresholds τ ∈ [0, 1]. Both Random Forest (0.916) and Logistic Regression (0.883) achieve excellent separation, proving strong underlying posterior probability calibration before threshold cutoffs.
@@ -1626,10 +1717,20 @@ def render_model_performance() -> None:
     col_cm, col_interp = st.columns([6, 6])
 
     with col_cm:
-        tn = int(best_f1_row["tn"])
-        fp = int(best_f1_row["fp"])
-        fn = int(best_f1_row["fn"])
-        tp = int(best_f1_row["tp"])
+        # Champion selector
+        cm_choice = st.radio(
+            "Select Evaluation Configuration:",
+            ["🥇 Best F1 Champion (Random Forest)", "🎯 Best Recall Champion (SVM)"],
+            horizontal=True,
+            key="mp_cm_selector"
+        )
+        use_best_f1_cm = "Best F1" in cm_choice
+        cm_row = best_f1_row if use_best_f1_cm else best_rec_row
+        cm_label = "RF + Tree-Importance + SMOTE" if use_best_f1_cm else "SVM + RFE + Class Weight"
+        tn = int(cm_row["tn"])
+        fp = int(cm_row["fp"])
+        fn = int(cm_row["fn"])
+        tp = int(cm_row["tp"])
         total_test = tn + fp + fn + tp
         total_neg = tn + fp
         total_pos = fn + tp
@@ -1644,9 +1745,9 @@ def render_model_performance() -> None:
     <div>
       <span class="viva-pill" style="font-size:0.6rem;padding:2px 6px;">Evaluation Sample</span>
       <div class="result-card-title" style="margin-top:4px;margin-bottom:2px;">Confusion Matrix — Champion Model</div>
-      <div style="font-size:0.75rem;color:var(--secondary);">Random Forest + Tree-Importance + SMOTE (Test split n = {total_test:,}, τ = 0.50)</div>
+      <div style="font-size:0.75rem;color:var(--secondary);">{cm_label} (Test split n = {total_test:,}, τ = 0.50)</div>
     </div>
-    <span class="meta-pill" style="font-size:0.7rem;font-weight:600;">Accuracy {best_f1_row['accuracy']*100:.1f}%</span>
+    <span class="meta-pill" style="font-size:0.7rem;font-weight:600;">Accuracy {cm_row['accuracy']*100:.1f}%</span>
   </div>
 
   <!-- Header row -->
@@ -1720,12 +1821,17 @@ def render_model_performance() -> None:
     <span style="color:var(--outline);">|</span>
     <div class="cm-summary-item">Recall: <span class="cm-summary-val" style="color:var(--primary);">{tpr:.1f}%</span></div>
     <span style="color:var(--outline);">|</span>
-    <div class="cm-summary-item">Precision: <span class="cm-summary-val" style="color:#2563eb;">{best_f1_row['precision']*100:.1f}%</span></div>
+    <div class="cm-summary-item">Precision: <span class="cm-summary-val" style="color:#2563eb;">{cm_row['precision']*100:.1f}%</span></div>
     <span style="color:var(--outline);">|</span>
-    <div class="cm-summary-item">F1 Score: <span class="cm-summary-val" style="color:var(--primary);">{best_f1_row['f1']:.4f}</span></div>
+    <div class="cm-summary-item">F1 Score: <span class="cm-summary-val" style="color:var(--primary);">{cm_row['f1']:.4f}</span></div>
   </div>
 </div>
 """, unsafe_allow_html=True)
+        if use_best_f1_cm:
+            cm_fig_path = FIGS / "best_f1_confusion_matrix.png"
+            if cm_fig_path.exists():
+                with st.expander("🖼️ View Verified Matplotlib Confusion Matrix Heatmap"):
+                    st.image(str(cm_fig_path), caption="Best F1 Confusion Matrix (Generated by src/explain_models.py)", use_container_width=True)
 
     with col_interp:
         st.markdown("""
@@ -1789,6 +1895,11 @@ def render_model_performance() -> None:
         "Test F1 (Holdout)", "Recall (CV Mean)", "Test Recall", "ROC-AUC (CV Mean)", "Accuracy (CV Mean)"
     ]
     renamed_df = cv_display[table_cols].rename(columns={"display_name": "Model Architecture & Strategy"})
+
+    cv_ci_fig = FIGS / "repeated_cv_confidence_intervals.png"
+    if cv_ci_fig.exists():
+        st.image(str(cv_ci_fig), caption="10-Fold Repeated CV — 95% Confidence Intervals by Model Configuration", use_container_width=True)
+
     st.dataframe(renamed_df, use_container_width=True, hide_index=True)
 
     st.markdown("""
@@ -1884,6 +1995,23 @@ def render_model_performance() -> None:
   The probability that the classifier ranks a randomly chosen positive session higher than a randomly chosen negative session across all decision thresholds $\\tau \\in [0, 1]$. An AUC $\\ge 0.90$ represents outstanding discrimination.
 """, unsafe_allow_html=True)
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # Row 6: Best F1 vs Best Recall Trade-off Figure
+    # ─────────────────────────────────────────────────────────────────────────
+    tradeoff_fig = FIGS / "best_f1_vs_best_recall.png"
+    if tradeoff_fig.exists():
+        st.markdown("""
+<div class="result-card" style="margin-top:12px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+    <div>
+      <div class="result-card-title" style="margin-bottom:2px;">Champion Trade-Off Comparison: Best F1 vs Best Recall</div>
+      <div style="font-size:0.75rem;color:var(--secondary);">Side-by-side metric comparison between the two research champion configurations on the held-out test split</div>
+    </div>
+    <span class="viva-pill">Research Benchmark</span>
+  </div>
+""", unsafe_allow_html=True)
+        st.image(str(tradeoff_fig), caption="Best F1 (RF + SMOTE) vs Best Recall (SVM + Class Weight) — Visualised metric comparison", use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 # ═════════════════════════════════════════════════════════════════════════════
 #  PAGE: FEATURE IMPORTANCE & SHAP INTERPRETABILITY
@@ -2029,8 +2157,22 @@ def render_feature_importance() -> None:
 
         global_fig_path = FIGS / "best_f1_shap_global_summary.png"
         if global_fig_path.exists():
-            with st.expander("🖼️ View Verified Matplotlib SHAP Global Summary Plot Artifact"):
-                st.image(str(global_fig_path), caption="Global SHAP Importance Plot (Generated by src/explain_models.py)", use_container_width=True)
+            st.image(str(global_fig_path), caption="Global SHAP Importance — Best F1 Model (RF + Tree-Importance + SMOTE, n=2,466 test sessions)", use_container_width=True)
+
+        # Local SHAP examples for both champions
+        with st.expander("🖼️ Research Figures: Local SHAP Examples for Both Champions"):
+            le_col1, le_col2 = st.columns(2)
+            with le_col1:
+                f1_local = FIGS / "best_f1_shap_local_example.png"
+                if f1_local.exists():
+                    st.image(str(f1_local), caption="Local SHAP Attribution — Best F1 Champion (Single Session)", use_container_width=True)
+            with le_col2:
+                rec_local = FIGS / "best_recall_shap_local_example.png"
+                if rec_local.exists():
+                    st.image(str(rec_local), caption="Local SHAP Attribution — Best Recall Champion (Single Session)", use_container_width=True)
+            rec_global = FIGS / "best_recall_shap_global_summary.png"
+            if rec_global.exists():
+                st.image(str(rec_global), caption="Global SHAP Importance — Best Recall Model (SVM + RFE + Class Weight)", use_container_width=True)
 
         st.markdown("""
   <div style="background:var(--surface-low);border-radius:var(--radius-md);padding:10px 12px;margin-top:14px;font-size:0.72rem;color:var(--on-surface-var);line-height:1.45;">
